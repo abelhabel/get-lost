@@ -10,28 +10,28 @@ var input = {
 function keyUp(e) {
 
   if(e.keyCode == input.left)
-    go.camera.vxl = 0;
+    player.vxl = 0;
 
   if(e.keyCode == input.right)
-    go.camera.vxr = 0;
+    player.vxr = 0;
 
   if(e.keyCode == input.up)
-    go.camera.vyu = 0
+    player.vyu = 0
 
   if(e.keyCode == input.down)
-    go.camera.vyd = 0;
+    player.vyd = 0;
 }
 function keyDown(e) {
 
   if(e.keyCode == input.left)
-    go.camera.vxl = -go.camera.vx;
+    player.vxl = -player.vx;
 
   if(e.keyCode == input.right)
-    go.camera.vxr = go.camera.vx;
+    player.vxr = player.vx;
 
   if(e.keyCode == input.up)
-    go.camera.vyu = -go.camera.vy;
+    player.vyu = -player.vy;
 
   if(e.keyCode == input.down)
-    go.camera.vyd = go.camera.vy;
+    player.vyd = player.vy;
 }

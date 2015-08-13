@@ -44,3 +44,34 @@ function getObjectCoordinates(obj) {
     }
   ];
 } 
+
+
+function generatePlanetName() {
+  var meditations = ["uhm", "nu", "go", "ro", "pha", "sah", "buth", "di", "chi", "von"];
+  var length = 1 + Math.ceil(Math.random() * 5);
+  var name = "";
+  for(var i = 0; i < length; i += 1) {
+    name += meditations[Math.floor(Math.random() * meditations.length)];
+  }
+  return name[0].toUpperCase() + name.slice(1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
