@@ -9,29 +9,18 @@ var input = {
 };
 function keyUp(e) {
 
-  if(e.keyCode == input.left)
-    player.vxl = 0;
-
-  if(e.keyCode == input.right)
-    player.vxr = 0;
-
-  if(e.keyCode == input.up)
-    player.vyu = 0
-
-  if(e.keyCode == input.down)
-    player.vyd = 0;
 }
 function keyDown(e) {
 
   if(e.keyCode == input.left)
-    player.vxl = -player.vx;
+    player.vx -= player.speed;
 
   if(e.keyCode == input.right)
-    player.vxr = player.vx;
+    player.vx += player.speed;
 
   if(e.keyCode == input.up)
-    player.vyu = -player.vy;
+    player.vy -= player.speed;
 
   if(e.keyCode == input.down)
-    player.vyd = player.vy;
+    player.vy += player.speed;
 }

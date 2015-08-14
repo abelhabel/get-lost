@@ -5,8 +5,8 @@ function draw() {
   player.move();
   ct.clearRect(0, 0, go.screen.width, go.screen.height);
   ct.fillStyle = go.workspace.backgroundColor;
-  ct.fillRect(0, 0, go.screen.width, go.screen.height);
-
+  // ct.fillRect(0, 0, go.screen.width, go.screen.height);
+  ct.drawImage(go.backgroundImage.img, 0, 0, go.screen.width, go.screen.height);
   //testing rectangles for camera
   var shapes = go.workspace.getGridTilesOnObject(go.camera);
   // Camere Offset
@@ -28,9 +28,9 @@ function draw() {
       ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
     }else
     if(shape instanceof Polygon) {
-
+      shape.playAnimation();
       ct.beginPath();
-      ct.strokeStyle = shape.strokeStyle;
+      
       var points = shape.getNodes();
       ct.moveTo( (points[0].x - ox), (points[0].y - oy));
       for(var k = 0; k < points.length; k += 1) {
@@ -40,14 +40,30 @@ function draw() {
             np = 0;
         }
         ct.lineTo( (points[np].x - ox), (points[np].y - oy));
-        ct.lineWidth = shape.lineThickness;
-        ct.stroke();
+        if(shape.stroke) {
+          ct.strokeStyle = shape.strokeStyle;
+          ct.lineWidth = shape.lineThickness;
+          ct.stroke();
+        }
       }
       
-      ct.stroke();
+      // ct.stroke();
       // ct.closePath();
+      if(shape.fill){
+        ct.fillStyle = shape.fillStyle;
+        ct.fill();
+      }
+    }else
+    if(shape instanceof BlackHole) {
+      ct.beginPath();
       ct.fillStyle = shape.fillStyle;
+      ct.strokeStyle = shape.strokeStyle;
+      ct.lineWidth = shape.lineThickness;
+      ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
       ct.fill();
+      ct.stroke();
     }
   });
+  // render the player last
+
 }

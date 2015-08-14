@@ -56,9 +56,23 @@ function generatePlanetName() {
   return name[0].toUpperCase() + name.slice(1);
 }
 
+function isInArray(arr, item) {
+  arr.forEach(function(instance) {
+    if(instance === item)
+      return true;
+  })
+  return false;
+}
 
-
-
+function removeFromArray(arr, item) {
+  for(var i = 0; i < arr.length; i += 1) {
+    if(arr[i] === item) {
+      arr.splice(i, 1);
+      return true;
+    }
+  }
+  return false;
+}
 
 
 

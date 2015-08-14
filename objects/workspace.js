@@ -30,4 +30,12 @@ function Workspace(w, h) {
   this.addToGrid = function(obj) {
     this.getGridTile(obj.posx, obj.posy).push(obj);
   };
+  this.updateGrid = function(x, y, obj) {
+    var tileInitial = this.getGridTile(x, y);
+    var tileNew = this.getGridTile(obj.posx, obj.posy);
+    if(tileInitial !== tileNew) {
+      removeFromArray(tileInitial, obj);
+      tileNew.push(obj);
+    }
+  };
 }

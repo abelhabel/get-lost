@@ -1,7 +1,7 @@
 var go = {
   workspace: new Workspace(),
-  screen: new Screen(window.innerWidth, window.innerHeight),
-  camera: new Camera(5000, 5000, window.innerWidth, window.innerHeight),
+  screen: new Screen(window.innerWidth, window.innerHeight, document.getElementById('background')),
+  camera: new Camera(50000, 50000, window.innerWidth, window.innerHeight),
   shapes: [],
   translateXY: function(x, y) {
     return {
