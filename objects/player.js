@@ -49,6 +49,39 @@ function Player(x, y, r) {
     }, 1000)
   }
 
+  Player.prototype.move = function() {
+    // if(this.vxr == 0 && this.vxl == 0 && this.vyd == 0 && this.vyu == 0)
+    //   return;
+    // this.rotation = Math.PI/2 + (this.vyd + this.vyu ) * Math.PI/2;
+    var shape = this;
+    var initialX = this.posx;
+    var initialY = this.posy;
+    var speedX = this.vx * (this.vxl + this.vxr);
+    var speedY = this.vy * (this.vyu + this.vyd);
+    if(this.moveLeft && this.vx > -this.maxSpeed) {
+      this.vx -= this.acceleration;
+    }
+    if(this.moveRight && this.vx < this.maxSpeed) {
+      this.vx += this.acceleration;
+    }
+    if(this.moveUp && this.vy > -this.maxSpeed) {
+      this.vy -= this.acceleration;
+    }
+    if(this.moveDown && this.vy < this.maxSpeed) {
+      this.vy += this.acceleration;
+    }
+    this.posx += this.vx;
+    this.posy += this.vy;
+
+    this.setBoundingBox();
+    // followers are other objects attached
+    // to this object, ie mounted
+    this.followers.forEach(function(obj) {
+      obj.posx = shape.posx;
+      obj.posy = shape.posy;
+    });
+    go.workspace.updateGrid(initialX, initialY, this);
+  }
 }
 
 Player.prototype = new Polygon();

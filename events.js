@@ -10,7 +10,22 @@ var input = {
   right: 68
 };
 function keyUp(e) {
+  if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
+    if(!player.drainFuel())
+      return;
+    
+    if(e.keyCode == input.left)
+      player.moveLeft = false;
 
+    if(e.keyCode == input.right)
+      player.moveRight = false;
+
+    if(e.keyCode == input.up)
+      player.moveUp = false;
+
+    if(e.keyCode == input.down)
+      player.moveDown = false;
+  }
 }
 function keyDown(e) {
 
@@ -19,16 +34,16 @@ function keyDown(e) {
       return;
     
     if(e.keyCode == input.left)
-      player.vx -= player.speed;
+      player.moveLeft = true;
 
     if(e.keyCode == input.right)
-      player.vx += player.speed;
+      player.moveRight = true;
 
     if(e.keyCode == input.up)
-      player.vy -= player.speed;
+      player.moveUp = true;
 
     if(e.keyCode == input.down)
-      player.vy += player.speed;
+      player.moveDown = true;
   }
 }
 function uiMouseDown(e) {

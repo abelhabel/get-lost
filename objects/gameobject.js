@@ -42,40 +42,7 @@ function GameObject() {
     this.ymin = this.posy - this.height/2;
     this.ymax = this.posy + this.height/2;
   };
-  this.move = function() {
-    // if(this.vxr == 0 && this.vxl == 0 && this.vyd == 0 && this.vyu == 0)
-    //   return;
-    // this.rotation = Math.PI/2 + (this.vyd + this.vyu ) * Math.PI/2;
-    var shape = this;
-    var initialX = this.posx;
-    var initialY = this.posy;
-    var speedX = this.vx * (this.vxl + this.vxr);
-    var speedY = this.vy * (this.vyu + this.vyd);
-    if(this.vx > this.maxSpeed) {
-      this.vx = this.maxSpeed;
-    }else
-    if(this.vx < -this.maxSpeed) {
-      this.vx = -this.maxSpeed;
-    }
-
-    if(this.vy > this.maxSpeed) {
-      this.vy = this.maxSpeed;
-    }else
-    if(this.vy < -this.maxSpeed) {
-      this.vy = -this.maxSpeed;
-    }
-    this.posx += this.vx;
-    this.posy += this.vy;
-
-    this.setBoundingBox();
-    // followers are other objects attached
-    // to this object, ie mounted
-    this.followers.forEach(function(obj) {
-      obj.posx = shape.posx;
-      obj.posy = shape.posy;
-    });
-    go.workspace.updateGrid(initialX, initialY, this);
-  }
+  
 
   this.handleCollision = function(obj) {
     if(this.lastCollidedWith == obj.id) return false;
@@ -84,7 +51,12 @@ function GameObject() {
       this.startMining(obj);
     }
   }
+  this.move = function() {
+    this.posx += this.vx;
+    this.posy += this.vy;
 
+    this.setBoundingBox();
+  }
   
 
     this.setBoundingBox();
