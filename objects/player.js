@@ -29,7 +29,7 @@ function Player(x, y, r) {
     this.currentlyMining = null;
   }
   Player.prototype.startMining = function(planet) {
-    if(planet.mineralCapacity <= 0 || this.currentlyMining === planet) return;
+    if(planet.mineralCapacity <= 0 || this.currentlyMining === planet || !planet.minable) return;
 
     if(this.currentlyMining !== planet) this.stopMining();
 

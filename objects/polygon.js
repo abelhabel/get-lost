@@ -5,7 +5,7 @@ function Polygon(x, y, r) {
   this.r = r || 100;
   this.width = this.height = this.r * 2;
   this.rotation = Math.PI/2;
-  this.points = 3;
+  this.points = this.points || 3;
   this.type = "polygon";
   this.lineThickness = 1;
   this.fillStyle = getRGB();
@@ -23,7 +23,6 @@ function Polygon(x, y, r) {
   }
   this.getNodes = function() {
     var arr = [];
-    
     for(var i = 0; i < this.points; i += 1) {
       var d = {};
       d.x = this.posx + this.r * Math.cos(i * this.radian + this.rotation);

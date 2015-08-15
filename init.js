@@ -1,6 +1,6 @@
 function populateWorld() {
   var keys = Object.keys(go.workspace.grid);
-  var key;
+  var key, planet, guardian;
   var rangeX = go.workspace.gridSizeX;
   var rangeY = go.workspace.gridSizeY;
   for(var i = 0; i < keys.length; i += 1 ) {
@@ -10,8 +10,12 @@ function populateWorld() {
     var baseY = parseInt(xy[1])
     var x = baseX + parseInt(Math.random() * rangeX);
     var y = baseY + parseInt(Math.random() * rangeY);
+
     if(i % 2 == 0) {
-      go.workspace.addToGrid(new Planet(x, y));
+      planet = new Planet(x, y)
+      guardian = new Guardian(x, y, planet);
+      go.workspace.addToGrid(planet);
+      go.workspace.addToGrid(guardian);
       // go.workspace.addToGrid(new Star(x, y));
     }else{
       go.workspace.addToGrid(new Planet(x, y));

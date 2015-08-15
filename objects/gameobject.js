@@ -35,6 +35,7 @@ function GameObject() {
   this.miningCounter = 0;
   this.miningTimer = null;
   this.minerals = getMineralTemplate();
+  this.minable = false;
 
   this.setBoundingBox = function() {
     this.xmin = this.posx - this.width/2;
@@ -54,6 +55,7 @@ function GameObject() {
     setTimeout(function(){shape.lastCollidedWith = null}, 500);
   }
   this.move = function() {
+    // if(this.vx == 0 && this.vy == 0) return;
     this.posx += this.vx;
     this.posy += this.vy;
 

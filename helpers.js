@@ -8,6 +8,13 @@ function getRGB() {
     + Math.floor(Math.random() * 255) + ","
     + Math.floor(Math.random() * 255) + ")";
 }
+function getRGBA() {
+  return "rgb("
+    + Math.floor(Math.random() * 255) + ","
+    + Math.floor(Math.random() * 255) + ","
+    + Math.floor(Math.random() * 255) + ","
+    + Math.random() + ")";
+}
 function getObjectCoordinates(obj) {
   return [
     {

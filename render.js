@@ -2,7 +2,7 @@ function draw() {
   window.requestAnimationFrame(draw);
   var ct = go.screen.context;
   go.camera.move();
-  player.move();
+  // player.move();
   ct.clearRect(0, 0, go.screen.width, go.screen.height);
   ct.fillStyle = go.workspace.backgroundColor;
   // ct.fillRect(0, 0, go.screen.width, go.screen.height);
@@ -13,6 +13,7 @@ function draw() {
   var ox = go.camera.xmin;
   var oy = go.camera.ymin;
   shapes.forEach(function(shape) {
+    shape.move();
     if(shape instanceof Planet) {
       // console.log(1);
       ct.beginPath();
@@ -36,9 +37,14 @@ function draw() {
       ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
     }else
     if(shape instanceof Polygon) {
+      ct.setLineDash([]);
       if(shape.playAnimation)
         shape.playAnimation();
       
+      if(typeof(shape.shoot) == 'function') {
+        shape.shoot();
+      }
+
       ct.beginPath();
       
       var points = shape.getNodes();
@@ -62,16 +68,18 @@ function draw() {
       if(shape.fill){
         ct.fillStyle = shape.fillStyle;
         ct.fill();
+
       }
     }else
-    if(shape instanceof BlackHole) {
+    if(shape instanceof Circle) {
+      ct.setLineDash([]);
       ct.beginPath();
       ct.fillStyle = shape.fillStyle;
       ct.strokeStyle = shape.strokeStyle;
       ct.lineWidth = shape.lineThickness;
       ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
-      ct.fill();
-      ct.stroke();
+      if(shape.fill) ct.fill();
+      if(shape.stroke) ct.stroke();
     }
   });
 

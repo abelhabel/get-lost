@@ -38,6 +38,13 @@ function Workspace(w, h) {
   this.addToGrid = function(obj) {
     this.getGridTile(obj.posx, obj.posy).push(obj);
   };
+  this.removeFromGrid = function(obj) {
+    var tile = this.getGridTile(obj.posx, obj.posy);
+    for(var i = 0; i < tile.length; i += 1) {
+      if(tile[i] === obj)
+        tile.splice(i, 1);
+    }
+  };
   this.updateGrid = function(x, y, obj) {
     var tileInitial = this.getGridTile(x, y);
     var tileNew = this.getGridTile(obj.posx, obj.posy);
