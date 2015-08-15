@@ -21,32 +21,35 @@ function Player(x, y, r) {
     }
   };
 
-  Player.prototype.stopMining = function(planet) {
+  Player.prototype.stopMining = function() {
     clearInterval(this.miningTimer);
     this.miningTimer = null;
     this.miningCounter = 0;
-    this.lastCollidedWith = null;
-    planet.lastCollidedWith = null;
+    if(this.currentlyMining) this.currentlyMining.isMined = false;
+    this.currentlyMining = null;
   }
   Player.prototype.startMining = function(planet) {
-    if(planet.mineralCapacity <= 0)
-      return;
-    
-    if(this.miningTimer)
-      clearInterval(this.miningTimer);
+    if(planet.mineralCapacity <= 0 || this.currentlyMining === planet) return;
 
+    if(this.currentlyMining !== planet) this.stopMining();
+
+    this.currentlyMining = planet;
+    planet.isMined = true;
     var shape = this;
     this.miningTimer = setInterval(function() {
       if(!intersectCircle(shape, planet)) {
-        shape.stopMining(planet);
+        shape.stopMining();
       }        
       shape.miningCounter += 1;
+      shape.minerals[planet.mineral.name] += shape.miningAmount/100;
+      planet.mineralCapacity -= shape.miningAmount/100;
+      planet.updateSize(planet.size - 1/100);
       if(shape.miningCounter >= shape.miningSpeed ) {
-        shape.stopMining(planet);
-        shape.minerals[planet.mineral.name] += shape.miningAmount;
-        planet.mineralCapacity -= shape.miningAmount;
+        shape.stopMining();
+        // shape.minerals[planet.mineral.name] += shape.miningAmount;
+        // planet.mineralCapacity -= shape.miningAmount/100;
       }
-    }, 1000)
+    }, 100)
   }
 
   Player.prototype.move = function() {

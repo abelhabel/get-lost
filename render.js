@@ -16,11 +16,19 @@ function draw() {
     if(shape instanceof Planet) {
       // console.log(1);
       ct.beginPath();
-      ct.fillStyle = shape.fillStyle;
-      ct.strokeStyle = shape.strokeStyle;
+      
       ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
       ct.lineWidth = shape.lineThickness;
+      ct.fillStyle = shape.fillStyle;
       ct.fill();
+      ct.strokeStyle = shape.strokeStyle;
+      if(shape.isMined && ct.setLineDash) {
+        ct.strokeStyle = "#FFFFFF";
+        ct.setLineDash([5]);
+      }else {
+        ct.setLineDash([]);
+      }
+      
       ct.stroke();
       ct.fillStyle = "#FFFFFF";
       ct.font = "20px Terminal";
@@ -74,13 +82,19 @@ function draw() {
   var padding = 10;
   var margin = 30;
   go.ui.minerals.forEach(function(mineral) {
-    
+    ct.lineWidth = 4;
     ct.fillStyle = mineral.fillStyle || "#FFFFFF";
     ct.fillRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height);
-
+    if(player.currentlyMining && player.currentlyMining.mineral.name == mineral.name) {
+      ct.setLineDash([2]);
+      ct.strokeStyle = "#FFFFFF";
+      ct.strokeRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height)
+    }else {
+      ct.setLineDash([]);
+    }
     ct.fillStyle = go.ui.fontColor || "#FFFFFF";
     ct.strokeStyle = "#BBBBBB";
-    ct.lineWidth = 4;
+    
     if(player.engineFuel == mineral.name )
       ct.strokeRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height)
 

@@ -50,6 +50,8 @@ function GameObject() {
     if(this === player) {
       this.startMining(obj);
     }
+    var shape = this;
+    setTimeout(function(){shape.lastCollidedWith = null}, 500);
   }
   this.move = function() {
     this.posx += this.vx;
