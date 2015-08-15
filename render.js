@@ -28,7 +28,9 @@ function draw() {
       ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
     }else
     if(shape instanceof Polygon) {
-      shape.playAnimation();
+      if(shape.playAnimation)
+        shape.playAnimation();
+      
       ct.beginPath();
       
       var points = shape.getNodes();
@@ -77,6 +79,11 @@ function draw() {
     ct.fillRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height);
 
     ct.fillStyle = go.ui.fontColor || "#FFFFFF";
+    ct.strokeStyle = "#BBBBBB";
+    ct.lineWidth = 4;
+    if(player.engineFuel == mineral.name )
+      ct.strokeRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height)
+
     ct.font = go.ui.smallFont + "px " + go.ui.fontFamily;
     if(mineral.mouseObject.mouseOver) {
       ct.fillText(mineral.name, mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont);

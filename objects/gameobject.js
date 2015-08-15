@@ -76,69 +76,17 @@ function GameObject() {
     });
     go.workspace.updateGrid(initialX, initialY, this);
   }
-  this.playAnimation = function() {
-    if(!this.animate)
-      return false;
-
-    this.rotation += 1;
-
-  };
-  this.stopMining = function(planet) {
-    clearInterval(this.miningTimer);
-    this.miningTimer = null;
-    this.miningCounter = 0;
-    this.lastCollidedWith = null;
-    planet.lastCollidedWith = null;
-  }
-  this.startMining = function(planet) {
-    if(planet.mineralCapacity <= 0)
-      return;
-    
-    if(this.miningTimer)
-      clearInterval(this.miningTimer);
-
-    var shape = this;
-    this.miningTimer = setInterval(function() {
-      if(!intersectCircle(shape, planet)) {
-        shape.stopMining(planet);
-      }        
-      shape.miningCounter += 1;
-      console.log('planet', planet);
-      console.log("mining", shape.miningCounter);
-      if(shape.miningCounter >= shape.miningSpeed ) {
-        shape.stopMining(planet);
-        shape.minerals[planet.mineral.name] += shape.miningAmount;
-        planet.mineralCapacity -= shape.miningAmount;
-        console.log(shape, planet);
-      }
-    }, 1000)
-  }
 
   this.handleCollision = function(obj) {
-    this.lastCollidedWith = obj;
+    this.lastCollidedWith = obj.id;
     if(this === player) {
       this.startMining(obj);
     }
   }
 
-  this.setEngineFuel = function(mineralName) {
-    this.engineFuel = mineralName;
-    console.log(minerals[mineralName]);
-    this.maxSpeed = minerals[mineralName].maxSpeed;
-    this.acceleration = minerals[mineralName].acceleration;
-    this.engineEfficiency = minerals[mineralName].engineEfficiency;
-  }
+  
 
-  this.drainFuel = function() {
-    if(this.minerals[this.engineFuel] > 0) {
-      this.minerals[this.engineFuel] -= this.engineDrain;
-      console.log(this.minerals[this.engineFuel])
-      return true;
-    }else {
-      return false;
-    }
-  };
-  this.setBoundingBox();
+    this.setBoundingBox();
 }
 
 

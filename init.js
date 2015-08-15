@@ -1,5 +1,4 @@
 function populateWorld() {
-  Planet.prototype = new GameObject();
   var keys = Object.keys(go.workspace.grid);
   var key;
   var range = go.workspace.gridSize;
@@ -21,7 +20,7 @@ function populateWorld() {
 }
 
 populateWorld();
-var player = new Polygon(50000, 50000, 100);
+var player = new Player(50000, 50000, 100);
 player.followers.push(go.camera);
 player.checkCollision = true;
 go.workspace.addToGrid(player);

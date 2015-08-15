@@ -250,9 +250,9 @@ var minerals = {
     projectileSpeed: 7,
     reloadSpeed: 100, 
     damage: 0.5, 
-    maxSpeed: 7,
-    acceleration: 1.3,
-    engineEfficiency: 1, //factor
+    maxSpeed: 17,
+    acceleration: 1.1,
+    engineEfficiency: 0.5, // multiplier
     miningSpeed: 1, //factor
     miningAmount: 1 //factor
   }

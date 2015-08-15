@@ -28,7 +28,7 @@ function collisionLoop() {
     s1 = shapes[i];
     for(var j = 0; j < shapes.length; j += 1) {
       s2 = shapes[j];
-      if(s1 !== s2 && (s1.checkCollision || s2.checkCollision) && s1.lastCollidedWith !== s2){
+      if(s1.id != s2.id && (s1.checkCollision || s2.checkCollision) && s1.lastCollidedWith !== s2){
         if(intersectCircle(s1, s2)) {
           s1.handleCollision(s2);
           s2.handleCollision(s1);

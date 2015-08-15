@@ -38,7 +38,6 @@ function uiMouseMove(e) {
   arr.forEach(function(element){
     if(element.mouseObject && isPointInObject(e.x, e.y, element)) {
       element.mouseObject.mouseOver = true;
-      console.log("over");
     }
   });
 
@@ -46,7 +45,6 @@ function uiMouseMove(e) {
   arr.forEach(function(element){
     if(element.mouseObject && !isPointInObject(e.x, e.y, element) && element.mouseObject.mouseOver) {
       element.mouseObject.mouseOver = false;
-      console.log("out");
     }
   });
 
