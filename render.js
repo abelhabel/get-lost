@@ -64,6 +64,24 @@ function draw() {
       ct.stroke();
     }
   });
-  // render the player last
 
+  // UI
+  ct = go.uiScreen.context;
+  ct.clearRect(0,0,go.uiScreen.width, go.uiScreen.height);
+  var step = 0;
+  var padding = 10;
+  var margin = 30;
+  go.ui.minerals.forEach(function(mineral) {
+    
+    ct.fillStyle = mineral.fillStyle || "#FFFFFF";
+    ct.fillRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height);
+
+    ct.fillStyle = go.ui.fontColor || "#FFFFFF";
+    ct.font = go.ui.smallFont + "px " + go.ui.fontFamily;
+    if(mineral.mouseObject.mouseOver) {
+      ct.fillText(mineral.name, mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont);
+      ct.fillText(player.minerals[mineral.name], mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont*2);
+    }
+    step += 1;
+  })
 }

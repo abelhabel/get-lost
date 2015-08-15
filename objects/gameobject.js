@@ -20,12 +20,15 @@ function GameObject() {
   this.collisionMethods = "circle";
   this.lastCollidedWith = null;
 
+  this.engineFuel = "Cermonophen";
+  this.engineDrain = 0.1;
+
   this.projectileSpeed = 4;
   this.reloadSpeed = 100;
   this.damage = 0.5; 
   this.maxSpeed = 7;
   this.acceleration = 1.3;
-  this.fuelEfficiency = 1;
+  this.engineEfficiency = 1;
   this.miningSpeed = 10; //seconds
   this.miningAmount = 10; //units of mineral per mining
 
@@ -117,6 +120,24 @@ function GameObject() {
       this.startMining(obj);
     }
   }
+
+  this.setEngineFuel = function(mineralName) {
+    this.engineFuel = mineralName;
+    console.log(minerals[mineralName]);
+    this.maxSpeed = minerals[mineralName].maxSpeed;
+    this.acceleration = minerals[mineralName].acceleration;
+    this.engineEfficiency = minerals[mineralName].engineEfficiency;
+  }
+
+  this.drainFuel = function() {
+    if(this.minerals[this.engineFuel] > 0) {
+      this.minerals[this.engineFuel] -= this.engineDrain;
+      console.log(this.minerals[this.engineFuel])
+      return true;
+    }else {
+      return false;
+    }
+  };
   this.setBoundingBox();
 }
 
