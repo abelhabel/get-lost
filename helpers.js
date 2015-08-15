@@ -1,3 +1,7 @@
+function getNextId() {
+  return window.goID = (window.goID || 0) + 1;
+}
+
 function getRGB() {
   return "rgb("
     + Math.floor(Math.random() * 255) + ","
@@ -57,10 +61,18 @@ function generatePlanetName() {
 }
 
 function isInArray(arr, item) {
-  arr.forEach(function(instance) {
-    if(instance === item)
-      return true;
-  })
+
+  for(var i = 0; i < arr.length; i += 1) {
+    if(item instanceof Array) {
+      for(var j = 0; j < item.length; j += 1) {
+        if(item[j] === arr[i])
+          return true;
+      }
+    }else {
+      if(item === arr[i])
+        return true;
+    }
+  }
   return false;
 }
 
@@ -73,9 +85,6 @@ function removeFromArray(arr, item) {
   }
   return false;
 }
-
-
-
 
 
 

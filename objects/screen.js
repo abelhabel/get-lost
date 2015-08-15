@@ -3,6 +3,7 @@ function Screen(w, h, canvas) {
   // or rather the view port in the browser and so,
   // its width and height should only change when
   // the view port changes
+  this.id = getNextId();
   this.canvas = canvas;
   this.width = this.canvas.width = w;
   this.height = this.canvas.height = h;

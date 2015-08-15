@@ -1,4 +1,5 @@
 function Star(x, y, r) {
+  this.id = getNextId();
   this.posx = x;
   this.posy = y;
   this.r = r || 25;

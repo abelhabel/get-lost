@@ -78,6 +78,7 @@ function GameObject() {
   }
 
   this.handleCollision = function(obj) {
+    if(this.lastCollidedWith == obj.id) return false;
     this.lastCollidedWith = obj.id;
     if(this === player) {
       this.startMining(obj);

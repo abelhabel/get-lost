@@ -87,7 +87,7 @@ function draw() {
     ct.font = go.ui.smallFont + "px " + go.ui.fontFamily;
     if(mineral.mouseObject.mouseOver) {
       ct.fillText(mineral.name, mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont);
-      ct.fillText(player.minerals[mineral.name], mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont*2);
+      ct.fillText(parseInt(player.minerals[mineral.name]), mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont*2);
     }
     step += 1;
   })

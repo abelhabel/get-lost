@@ -1,13 +1,19 @@
 function Workspace(w, h) {
   var ws = this;
+  this.id = getNextId();
   this.width = w || 100000;
   this.height = h || 100000;
   this.backgroundColor = "#000000";
-  this.gridSize = 1600;
+  this.gridSizeX = window.innerWidth;
+  this.gridSizeY = window.innerHeight;
+  this.updateGridSize = function() {
+    this.gridSizeX = window.innerWidth;
+    this.gridSizeY = window.innerHeight;
+  };
   this.gridify = function() {
     var grid = {};
-    for(var i = 0; i < this.width; i += this.gridSize) {
-      for(var j = 0; j < this.height; j += this.gridSize) {
+    for(var i = 0; i < this.width; i += this.gridSizeX) {
+      for(var j = 0; j < this.height; j += this.gridSizeY) {
         grid[i + ":" + j] = [];
       }
     }
@@ -15,15 +21,17 @@ function Workspace(w, h) {
   };
   this.gridify();
   this.getGridTile = function(x, y) {
-    var gridX = x - (x % this.gridSize);
-    var gridY = y - (y % this.gridSize);
+    var gridX = x - (x % this.gridSizeX);
+    var gridY = y - (y % this.gridSizeY);
     return this.grid[gridX + ":" + gridY];
   };
   this.getGridTilesOnObject = function(obj) {
     var coordinates = getObjectCoordinates(obj);
     var arr = [];
     coordinates.forEach(function(obj) {
-      arr = arr.concat(ws.getGridTile(obj.x, obj.y));
+      var tile = ws.getGridTile(obj.x, obj.y);
+      if(!isInArray(arr, tile))
+        arr = arr.concat(tile);
     });
     return arr;
   };

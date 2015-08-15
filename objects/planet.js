@@ -1,4 +1,5 @@
 function Planet(x, y, r) {
+  this.id = getNextId();
   this.name = generatePlanetName();
   this.posx = x;
   this.posy = y;

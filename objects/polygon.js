@@ -1,4 +1,5 @@
 function Polygon(x, y, r) {
+  this.id = getNextId();
   this.posx = x || 0;
   this.posy = y || 0;
   this.r = r || 100;

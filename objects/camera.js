@@ -2,6 +2,7 @@ function Camera(x, y, w, h) {
   // the camera represents the player's view
   // which has a position relative to the
   // workspace.
+  this.id = getNextId();
   this.posx = x || 0;
   this.posy = y || 0;
   this.width = w;

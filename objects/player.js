@@ -1,7 +1,9 @@
 function Player(x, y, r) {
+  this.id = getNextId();
   this.posx = x;
   this.posy = y;
   this.r = r;
+  this.checkCollision = true;
 
   Player.prototype.setEngineFuel = function(mineralName) {
     this.engineFuel = mineralName;
@@ -43,7 +45,6 @@ function Player(x, y, r) {
         shape.stopMining(planet);
         shape.minerals[planet.mineral.name] += shape.miningAmount;
         planet.mineralCapacity -= shape.miningAmount;
-        console.log(shape, planet);
       }
     }, 1000)
   }
