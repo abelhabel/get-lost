@@ -12,4 +12,3 @@ function BlackHole(x, y, r) {
   
 }
 
-BlackHole.prototype = new GameObject();

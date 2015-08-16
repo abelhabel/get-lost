@@ -8,6 +8,6 @@ function Circle(x, y, r) {
     if(this.size <= 1) this.size = 1;
     this.r = 25 * this.size;
   };
+  
 }
 
-Circle.prototype = new GameObject();

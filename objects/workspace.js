@@ -41,7 +41,7 @@ function Workspace(w, h) {
   this.removeFromGrid = function(obj) {
     var tile = this.getGridTile(obj.posx, obj.posy);
     for(var i = 0; i < tile.length; i += 1) {
-      if(tile[i] === obj)
+      if(tile[i].id == obj.id)
         tile.splice(i, 1);
     }
   };

@@ -16,18 +16,18 @@ function Guardian(x, y, planet) {
 
     this.rotation += 0.01;
   };
-  this.shoot = function() {
+  Guardian.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
       this.shootTimer = 0;
       for(var i = 0; i < this.points; i += 1) {
         var x = this.r * Math.cos(i * this.radian + this.rotation);
         var y = this.r * Math.sin(i * this.radian + this.rotation) * (-1);
-        var proj = new Projectile(this.posx + x, this.posy + y, 10, x /50, y/50, this.strokeStyle);
+        var proj = new Projectile(this.posx + x, this.posy + y, 10, x /20, y/20, this.strokeStyle);
+        proj.team = this.team;
         (function(p){
           setTimeout(function(){
             go.workspace.removeFromGrid(p);
-            console.log(p.id);
           }, 3000);
         })(proj);
         go.workspace.addToGrid(proj);
@@ -39,6 +39,9 @@ function Guardian(x, y, planet) {
   this.lineThickness = 8;
   this.fillStyle = planet.fillStyle;
   this.strokeStyle = planet.strokeStyle;
+
+  this.currentHP = this.maxHP = this.points;
+  this.checkCollision = true;
+  this.team = planet.id;
 }
 
-Guardian.prototype = new Polygon();

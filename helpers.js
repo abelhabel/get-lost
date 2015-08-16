@@ -96,7 +96,9 @@ function removeFromArray(arr, item) {
 
 
 
-
+// var i = arr.indexOf(item)
+//   if(i >= 0) arr.splice(i, 1);
+//   return i;
 
 
 

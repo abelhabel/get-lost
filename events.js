@@ -4,10 +4,11 @@ window.addEventListener('keyup', keyUp, false);
 window.addEventListener('mousemove', uiMouseMove, false);
 window.addEventListener('mousedown', uiMouseDown, false);
 var input = {
-  up: 87,
-  down: 83,
-  left: 65,
-  right: 68
+  up: 87, // w
+  down: 83, // s
+  left: 65, // a
+  right: 68, // d
+  shootProjectile: 75, // k
 };
 function keyUp(e) {
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
@@ -45,6 +46,8 @@ function keyDown(e) {
     if(e.keyCode == input.down)
       player.moveDown = true;
   }
+  if(e.keyCode == input.shootProjectile)
+    player.shoot();
 }
 function uiMouseDown(e) {
   var arr = go.ui.minerals;

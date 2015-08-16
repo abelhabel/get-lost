@@ -4,6 +4,19 @@ function Player(x, y, r) {
   this.posy = y;
   this.r = r;
   this.checkCollision = true;
+  this.currentHP = this.maxHP = 10;
+  this.team = this.id;
+
+  Player.prototype.shoot = function() {
+    var x = Math.round(this.r * Math.cos(this.rotation) * 100) / 100;
+    var y = Math.round(this.r * Math.sin(this.rotation) * (-1) * 100) / 100; 
+    var proj = new Projectile(this.posx + x, this.posy + y, 10, x /10, y/10, this.strokeStyle);
+    proj.team = this.team;
+    go.workspace.addToGrid(proj);
+    setTimeout(function() {
+      go.workspace.removeFromGrid(proj);
+    }, 3000);
+  }
 
   Player.prototype.setEngineFuel = function(mineralName) {
     this.engineFuel = mineralName;
@@ -87,4 +100,3 @@ function Player(x, y, r) {
   }
 }
 
-Player.prototype = new Polygon();

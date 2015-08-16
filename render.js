@@ -2,7 +2,7 @@ function draw() {
   window.requestAnimationFrame(draw);
   var ct = go.screen.context;
   go.camera.move();
-  // player.move();
+  player.move();
   ct.clearRect(0, 0, go.screen.width, go.screen.height);
   ct.fillStyle = go.workspace.backgroundColor;
   // ct.fillRect(0, 0, go.screen.width, go.screen.height);
@@ -13,7 +13,7 @@ function draw() {
   var ox = go.camera.xmin;
   var oy = go.camera.ymin;
   shapes.forEach(function(shape) {
-    shape.move();
+    if( (shape.vx != 0 || shape.vy != 0) && shape != player) shape.move();
     if(shape instanceof Planet) {
       // console.log(1);
       ct.beginPath();
@@ -41,7 +41,7 @@ function draw() {
       if(shape.playAnimation)
         shape.playAnimation();
       
-      if(typeof(shape.shoot) == 'function') {
+      if(typeof(shape.shoot) == 'function' && shape != player) {
         shape.shoot();
       }
 

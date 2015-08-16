@@ -13,5 +13,11 @@ function Planet(x, y, r) {
   this.strokeStyle = getRGB();
   this.isMined = false;
   this.minable = true;
+
+  this.checkCollision = false;
+  this.team = this.id;
+
+  Planet.prototype.takeDamage = function() {
+
+  };
 }
-Planet.prototype = new Circle();

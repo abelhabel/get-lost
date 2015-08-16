@@ -11,10 +11,8 @@ function Star(x, y, r) {
   Star.prototype.playAnimation = function() {
     if(!this.animate)
       return false;
-
     this.rotation += 1;
-
   };
+  
 }
 
-Star.prototype = new Polygon();

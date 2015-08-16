@@ -13,4 +13,3 @@ function Camera(x, y, w, h) {
     this.setBoundingBox();
   };
 }
-Camera.prototype = new GameObject();

@@ -33,4 +33,3 @@ function Polygon(x, y, r) {
   };
 }
 
-Polygon.prototype = new GameObject();

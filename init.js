@@ -1,3 +1,5 @@
+
+
 function populateWorld() {
   var keys = Object.keys(go.workspace.grid);
   var key, planet, guardian;
@@ -27,7 +29,6 @@ function populateWorld() {
 populateWorld();
 var player = new Player(50000, 50000, 100);
 player.followers.push(go.camera);
-player.checkCollision = true;
 go.workspace.addToGrid(player);
 go.backgroundImage = new Background();
 
@@ -51,4 +52,5 @@ Object.keys(minerals).forEach(function(key) {
 
 
 go.collisionTimer = setInterval(collisionLoop, 10);
+go.miningTimer = setInterval(miningLoop, 100);
 draw();

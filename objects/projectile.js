@@ -8,6 +8,12 @@ function Projectile(x, y, r, vx, vy, fillStyle) {
   this.vx = vx;
   this.vy = vy;
   this.stroke = false;
+
+  this.checkCollision = true;
+  this.collisionMethod = "c";
+
+  this.currentHP = 0;
+  this.damage = 1;
+  
 }
 
-Projectile.prototype = new Circle();
