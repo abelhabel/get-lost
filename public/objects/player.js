@@ -1,11 +1,15 @@
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
+if(typeof(require) == 'function') var Minerals = require("../../public/helpers.js");
 function Player(x, y, r) {
-  this.id = getNextId();
+  this.id = Helpers.getNextId();
   this.posx = x;
   this.posy = y;
   this.r = r;
   this.checkCollision = true;
   this.currentHP = this.maxHP = 10;
   this.team = this.id;
+
+  this.inAdventure = false;
 
   Player.prototype.shoot = function() {
     var x = Math.round(this.r * Math.cos(this.rotation) * 100) / 100;
@@ -16,6 +20,9 @@ function Player(x, y, r) {
     setTimeout(function() {
       go.workspace.removeFromGrid(proj);
     }, 3000);
+
+    //socket
+    // socket.emit('player shoot', "shooting" + this.posx + ":" + this.posy);
   }
 
   Player.prototype.setEngineFuel = function(mineralName) {
@@ -27,7 +34,7 @@ function Player(x, y, r) {
 
   Player.prototype.drainFuel = function() {
     if(this.minerals[this.engineFuel] > 0) {
-      this.minerals[this.engineFuel] -= this.engineDrain * minerals[this.engineFuel].engineEfficiency;
+      this.minerals[this.engineFuel] -= this.engineDrain * Minerals.minerals[this.engineFuel].engineEfficiency;
       return true;
     }else {
       return false;
@@ -45,6 +52,14 @@ function Player(x, y, r) {
     if(planet.mineralCapacity <= 0 || this.currentlyMining === planet || !planet.minable) return;
 
     if(this.currentlyMining !== planet) this.stopMining();
+
+    // adventure prototype code
+    // if(!this.inAdventure && planet.adventure) {
+    //   this.inAdventure = true;
+    //   this.vx = this.vy = 0;
+    //   Lightbox(planet.adventure, go.camera.width, go.camera.height);
+    // }    
+
 
     this.currentlyMining = planet;
     planet.isMined = true;
@@ -98,5 +113,7 @@ function Player(x, y, r) {
     });
     go.workspace.updateGrid(initialX, initialY, this);
   }
+  this.cotr = "Player";
 }
 
+if(typeof module != 'undefined') module.exports = Player;

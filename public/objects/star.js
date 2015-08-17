@@ -13,6 +13,7 @@ function Star(x, y, r) {
       return false;
     this.rotation += 1;
   };
-  
+  this.cotr = "Star";
 }
 
+if(typeof module != 'undefined') module.exports = Star;

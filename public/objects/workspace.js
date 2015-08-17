@@ -1,14 +1,15 @@
-function Workspace(w, h) {
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
+function Workspace(w, h, gridX, gridY) {
   var ws = this;
-  this.id = getNextId();
+  this.id = Helpers.getNextId();
   this.width = w || 100000;
   this.height = h || 100000;
   this.backgroundColor = "#000000";
-  this.gridSizeX = window.innerWidth;
-  this.gridSizeY = window.innerHeight;
-  this.updateGridSize = function() {
-    this.gridSizeX = window.innerWidth;
-    this.gridSizeY = window.innerHeight;
+  this.gridSizeX = gridX;
+  this.gridSizeY = gridY;
+  this.updateGridSize = function(w, h) {
+    this.gridSizeX = w;
+    this.gridSizeY = h;
   };
   this.gridify = function() {
     var grid = {};
@@ -26,17 +27,25 @@ function Workspace(w, h) {
     return this.grid[gridX + ":" + gridY];
   };
   this.getGridTilesOnObject = function(obj) {
-    var coordinates = getObjectCoordinates(obj);
+    var coordinates = Helpers.getObjectCoordinates(obj);
     var arr = [];
     coordinates.forEach(function(obj) {
       var tile = ws.getGridTile(obj.x, obj.y);
-      if(!isInArray(arr, tile))
+      if(!Helpers.isInArray(arr, tile))
         arr = arr.concat(tile);
     });
     return arr;
   };
   this.addToGrid = function(obj) {
-    this.getGridTile(obj.posx, obj.posy).push(obj);
+    var tile = this.getGridTile(obj.posx, obj.posy);
+    var match = Helpers.getObjectOnId(tile, obj.id);
+    if(match) {
+      match.dead = obj.dead;
+    }else{
+     tile.push(obj);
+    }
+    // if(!obj.dead && !Helpers.isInArray(this.getGridTile(obj.posx, obj.posy), obj))
+      
   };
   this.removeFromGrid = function(obj) {
     var tile = this.getGridTile(obj.posx, obj.posy);
@@ -49,8 +58,11 @@ function Workspace(w, h) {
     var tileInitial = this.getGridTile(x, y);
     var tileNew = this.getGridTile(obj.posx, obj.posy);
     if(tileInitial !== tileNew) {
-      removeFromArray(tileInitial, obj);
+      Helpers.removeFromArray(tileInitial, obj);
       tileNew.push(obj);
     }
   };
+  this.cotr = "Workspace";
 }
+
+if(typeof module != 'undefined') module.exports = Workspace;

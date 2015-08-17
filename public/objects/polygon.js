@@ -1,5 +1,6 @@
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
 function Polygon(x, y, r) {
-  this.id = getNextId();
+  this.id = Helpers.getNextId();
   this.posx = x || 0;
   this.posy = y || 0;
   this.r = r || 100;
@@ -8,8 +9,8 @@ function Polygon(x, y, r) {
   this.points = this.points || 3;
   this.type = "polygon";
   this.lineThickness = 1;
-  this.fillStyle = getRGB();
-  this.strokeStyle = getRGB();
+  this.fillStyle = Helpers.getRGB();
+  this.strokeStyle = Helpers.getRGB();
   this.getRadian = function() {
     return Math.PI * 2 / this.points;
   };
@@ -31,5 +32,7 @@ function Polygon(x, y, r) {
     }
     return arr;
   };
+  this.cotr = "Polygon";
 }
 
+if(typeof module != 'undefined') module.exports = Polygon;

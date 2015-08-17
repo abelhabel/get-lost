@@ -1,5 +1,6 @@
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
 function BlackHole(x, y, r) {
-  this.id = getNextId();
+  this.id = Helpers.getNextId();
   this.posx = x;
   this.posy = y;
   this.r = r || 25;
@@ -9,6 +10,7 @@ function BlackHole(x, y, r) {
   this.fillStyle = "#000000";
   this.strokeStyle = "#00AAAA";
   go.workspace.addToGrid(this);
-  
+  this.cotr = "BlackHole";
 }
 
+if(typeof module != 'undefined') module.exports = BlackHole;

@@ -1,5 +1,6 @@
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
 function Projectile(x, y, r, vx, vy, fillStyle) {
-  this.id = getNextId();
+  this.id = Helpers.getNextId();
   this.posx = x;
   this.posy = y;
   this.r = r;
@@ -14,6 +15,7 @@ function Projectile(x, y, r, vx, vy, fillStyle) {
 
   this.currentHP = 0;
   this.damage = 1;
-  
+  this.cotr = "Projectile";
 }
 
+if(typeof module != 'undefined') module.exports = Projectile;

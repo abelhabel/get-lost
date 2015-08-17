@@ -13,6 +13,7 @@ function draw() {
   var ox = go.camera.xmin;
   var oy = go.camera.ymin;
   shapes.forEach(function(shape) {
+    if(shape.dead) return;
     if( (shape.vx != 0 || shape.vy != 0) && shape != player) shape.move();
     if(shape instanceof Planet) {
       // console.log(1);

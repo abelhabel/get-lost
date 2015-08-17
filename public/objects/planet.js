@@ -1,6 +1,8 @@
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
+if(typeof(require) == 'function') var Minerals = require("../../public/minerals.js");
 function Planet(x, y, r) {
-  this.id = getNextId();
-  this.name = generatePlanetName();
+  this.id = Helpers.getNextId();
+  this.name = Helpers.generatePlanetName();
   this.posx = x;
   this.posy = y;
   this.r = r;
@@ -8,9 +10,9 @@ function Planet(x, y, r) {
   this.lineThickness = 0.5 * this.size;
   this.r = 25 * this.size;
   this.mineralCapacity = 10 * this.size;
-  this.mineral = generateMineral();
+  this.mineral = Minerals.generateMineral();
   this.fillStyle = this.mineral.color;
-  this.strokeStyle = getRGB();
+  this.strokeStyle = Helpers.getRGB();
   this.isMined = false;
   this.minable = true;
 
@@ -20,4 +22,7 @@ function Planet(x, y, r) {
   Planet.prototype.takeDamage = function() {
 
   };
+  this.cotr = "Planet";
 }
+
+if(typeof module != 'undefined') module.exports = Planet;

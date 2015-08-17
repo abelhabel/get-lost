@@ -1,3 +1,5 @@
+if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
+if(typeof(require) == 'function') var Minerals = require("../../public/helpers.js");
 function GameObject() {
   this.followers = [];
   this.posx;
@@ -9,6 +11,8 @@ function GameObject() {
   this.ymin;
   this.ymax;
   
+  this.dead = false;
+
   this.stroke = true;
   this.fill = true;
   this.animate = false
@@ -37,7 +41,7 @@ function GameObject() {
 
   this.miningCounter = 0;
   this.miningTimer = null;
-  this.minerals = getMineralTemplate();
+  this.minerals = Minerals.mineralsTemplate;
   this.minable = false;
 
   this.currentHP = this.maxHP = 1;
@@ -51,7 +55,10 @@ function GameObject() {
   };
   
   this.onDeath = function() {
-    go.workspace.removeFromGrid(this);
+    this.dead = true;
+    this.checkCollision = false;
+    socket.emit('death', this);
+    // if(this.cotr != 'Projectile' && this.cotr != 'Planet') socket.emit('death', this);
   };
 
   this.takeDamage = function(amount) {
@@ -59,6 +66,7 @@ function GameObject() {
     if(this.currentHP <= 0) {
       this.onDeath();
     }
+    // socket.emit('taking damage', JSON.stringify(this));
   };
   this.handleCollision = function(obj) {
     if(this.lastCollidedWith == obj.id) return false;
@@ -77,13 +85,11 @@ function GameObject() {
     go.workspace.updateGrid(initialX, initialY, this);
   }
   
-
-    this.setBoundingBox();
+  this.cotr = "GameObject";
+  this.setBoundingBox();
 }
 
-
-
-
+if(typeof module != 'undefined') module.exports = GameObject;
 
 
 
