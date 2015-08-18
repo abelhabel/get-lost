@@ -8,3 +8,4 @@ Planet.prototype = new Circle();
 Guardian.prototype = new Polygon();
 Projectile.prototype = new Circle();
 Star.prototype = new Polygon();
+Boss.prototype = new Polygon();

@@ -58,10 +58,10 @@ var Minerals = {
       name: "Bredide",
       color: "rgb(190,110,10)",
       projectileSpeed: 7,
-      reloadSpeed: 100,
-      damage: 0.5, 
-      maxSpeed: 1,
-      acceleration: 1,
+      reloadSpeed: 400,
+      damage: 3, 
+      maxSpeed: 2,
+      acceleration: 0.33,
       engineEfficiency: 1, //factor
       miningSpeed: 1, //factor
       miningAmount: 1 //factor
@@ -72,8 +72,8 @@ var Minerals = {
       projectileSpeed: 7,
       reloadSpeed: 100,
       damage: 0.5, 
-      maxSpeed: 7,
-      acceleration: 1.3,
+      maxSpeed: 4,
+      acceleration: 0.2,
       engineEfficiency: 1, //factor
       miningSpeed: 1, //factor
       miningAmount: 1 //factor

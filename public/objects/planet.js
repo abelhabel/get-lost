@@ -19,6 +19,12 @@ function Planet(x, y, r) {
   this.checkCollision = false;
   this.team = this.id;
 
+  Planet.prototype.updateSize = function(size) {
+    this.size = size;
+    if(this.size <= 1) this.size = 1;
+    this.r = 25 * this.size;
+  };
+
   Planet.prototype.takeDamage = function() {
 
   };

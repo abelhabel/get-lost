@@ -19,7 +19,7 @@ function Polygon(x, y, r) {
   };
   this.setRadian();
   this.setPoints = function(p) {
-    this.points = p;
+    this.points = p || this.points;
     this.setRadian();
   }
   this.getNodes = function() {

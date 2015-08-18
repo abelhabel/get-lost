@@ -1,43 +1,24 @@
 function draw() {
-  window.requestAnimationFrame(draw);
-  var ct = go.screen.context;
-  go.camera.move();
-  player.move();
-  ct.clearRect(0, 0, go.screen.width, go.screen.height);
-  ct.fillStyle = go.workspace.backgroundColor;
-  // ct.fillRect(0, 0, go.screen.width, go.screen.height);
-  ct.drawImage(go.backgroundImage.img, 0, 0, go.screen.width, go.screen.height);
-  //testing rectangles for camera
-  var shapes = go.workspace.getGridTilesOnObject(go.camera);
-  // Camere Offset
-  var ox = go.camera.xmin;
-  var oy = go.camera.ymin;
-  shapes.forEach(function(shape) {
+
+
+  function renderFilter(shape) {
     if(shape.dead) return;
-    if( (shape.vx != 0 || shape.vy != 0) && shape != player) shape.move();
+    if( typeof(shape.move) == 'function' && (shape.follow || shape.vx != 0 || shape.vy != 0) && shape != player) {
+      shape.move();
+    }
     if(shape instanceof Planet) {
-      // console.log(1);
-      ct.beginPath();
-      
-      ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
-      ct.lineWidth = shape.lineThickness;
-      ct.fillStyle = shape.fillStyle;
-      ct.fill();
-      ct.strokeStyle = shape.strokeStyle;
-      if(shape.isMined && ct.setLineDash) {
-        ct.strokeStyle = "#FFFFFF";
-        ct.setLineDash([5]);
-      }else {
-        ct.setLineDash([]);
-      }
-      
-      ct.stroke();
-      ct.fillStyle = "#FFFFFF";
-      ct.font = "20px Terminal";
-      var textWidth = ct.measureText(shape.name).width;
-      ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
+      render.Planet(shape);
     }else
     if(shape instanceof Polygon) {
+      render.Polygon(shape);
+    }else
+    if(shape instanceof Circle) {
+      render.Circle(shape);
+    }
+  }
+
+  var render = {
+    Polygon: function renderPolygon(shape) {
       ct.setLineDash([]);
       if(shape.playAnimation)
         shape.playAnimation();
@@ -63,7 +44,6 @@ function draw() {
           ct.stroke();
         }
       }
-      
       // ct.stroke();
       // ct.closePath();
       if(shape.fill){
@@ -71,8 +51,31 @@ function draw() {
         ct.fill();
 
       }
-    }else
-    if(shape instanceof Circle) {
+    },
+
+    Planet: function renderPlanet(shape) {
+      // console.log(1);
+      ct.beginPath();
+      ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
+      ct.lineWidth = shape.lineThickness;
+      ct.fillStyle = shape.fillStyle;
+      ct.fill();
+      ct.strokeStyle = shape.strokeStyle;
+      if(shape.isMined && ct.setLineDash) {
+        ct.strokeStyle = "#FFFFFF";
+        ct.setLineDash([5]);
+      }else {
+        ct.setLineDash([]);
+      }
+      
+      ct.stroke();
+      ct.fillStyle = "#FFFFFF";
+      ct.font = "20px Terminal";
+      var textWidth = ct.measureText(shape.name).width;
+      ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
+    },
+
+    Circle: function renderCircle(shape) {
       ct.setLineDash([]);
       ct.beginPath();
       ct.fillStyle = shape.fillStyle;
@@ -82,6 +85,29 @@ function draw() {
       if(shape.fill) ct.fill();
       if(shape.stroke) ct.stroke();
     }
+  };
+  window.requestAnimationFrame(draw);
+  var ct = go.screen.context;
+  go.camera.move();
+  player.move();
+  ct.clearRect(0, 0, go.screen.width, go.screen.height);
+  ct.fillStyle = go.workspace.backgroundColor;
+  // ct.fillRect(0, 0, go.screen.width, go.screen.height);
+  ct.drawImage(go.backgroundImage.img, 0, 0, go.screen.width, go.screen.height);
+  //testing rectangles for camera
+  var shapes = go.workspace.getGridTilesOnObject(go.camera);
+  // Camere Offset
+  var ox = go.camera.xmin;
+  var oy = go.camera.ymin;
+  shapes.forEach(function(shape) {
+    renderFilter(shape);
+
+    if(shape.followers) {
+      shape.followers.forEach(function(shape) {
+        renderFilter(shape);
+      })
+    }
+
   });
 
   // UI
@@ -93,7 +119,10 @@ function draw() {
   go.ui.minerals.forEach(function(mineral) {
     ct.lineWidth = 4;
     ct.fillStyle = mineral.fillStyle || "#FFFFFF";
-    ct.fillRect(mineral.xmin, mineral.ymin, mineral.width, mineral.height);
+    var percent = Math.min.apply(null, [player.minerals[mineral.name], 100]) / 100;
+    var h = mineral.height * percent;
+    var diff = (1 - percent) * mineral.height;
+    ct.fillRect(mineral.xmin, mineral.ymin + diff, mineral.width, h);
     if(player.currentlyMining && player.currentlyMining.mineral.name == mineral.name) {
       ct.setLineDash([2]);
       ct.strokeStyle = "#FFFFFF";

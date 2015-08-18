@@ -31,16 +31,28 @@ function Workspace(w, h, gridX, gridY) {
     var arr = [];
     coordinates.forEach(function(obj) {
       var tile = ws.getGridTile(obj.x, obj.y);
-      if(!Helpers.isInArray(arr, tile))
-        arr = arr.concat(tile);
+      if(!Helpers.isInArray(arr, tile)){
+        arr.push.apply(arr, tile);
+      }
+    });
+    return arr;
+  };
+  this.getGridTilesOnObjectLoose = function(obj) {
+    var coordinates = Helpers.getObjectCoordinates(obj);
+    var arr = [];
+    coordinates.forEach(function(obj) {
+      var tile = ws.getGridTile(obj.x, obj.y);
+      arr.push.apply(arr, tile);
     });
     return arr;
   };
   this.addToGrid = function(obj) {
     var tile = this.getGridTile(obj.posx, obj.posy);
+    if(!tile) return;
     var match = Helpers.getObjectOnId(tile, obj.id);
     if(match) {
       match.dead = obj.dead;
+      if(match.updateSize) match.updateSize(obj.size);
     }else{
      tile.push(obj);
     }
@@ -49,6 +61,7 @@ function Workspace(w, h, gridX, gridY) {
   };
   this.removeFromGrid = function(obj) {
     var tile = this.getGridTile(obj.posx, obj.posy);
+    if(!tile) return;
     for(var i = 0; i < tile.length; i += 1) {
       if(tile[i].id == obj.id)
         tile.splice(i, 1);
@@ -57,7 +70,7 @@ function Workspace(w, h, gridX, gridY) {
   this.updateGrid = function(x, y, obj) {
     var tileInitial = this.getGridTile(x, y);
     var tileNew = this.getGridTile(obj.posx, obj.posy);
-    if(tileInitial !== tileNew) {
+    if(tileNew && tileInitial && tileInitial !== tileNew) {
       Helpers.removeFromArray(tileInitial, obj);
       tileNew.push(obj);
     }

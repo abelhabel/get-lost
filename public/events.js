@@ -9,6 +9,7 @@ var input = {
   left: 65, // a
   right: 68, // d
   shootProjectile: 75, // k
+  stopMovement: 69
 };
 function keyUp(e) {
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
@@ -48,6 +49,9 @@ function keyDown(e) {
   }
   if(e.keyCode == input.shootProjectile)
     player.shoot();
+
+  if(e.keyCode == input.stopMovement)
+    player.vx = player.vy = 0;
 }
 function uiMouseDown(e) {
   var arr = go.ui.minerals;

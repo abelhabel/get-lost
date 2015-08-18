@@ -4,6 +4,7 @@ function Projectile(x, y, r, vx, vy, fillStyle) {
   this.posx = x;
   this.posy = y;
   this.r = r;
+  this.width = this.height = r * 2;
   this.direction = 0;
   this.fillStyle = fillStyle;
   this.vx = vx;

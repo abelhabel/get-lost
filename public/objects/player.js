@@ -1,6 +1,7 @@
 if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
 if(typeof(require) == 'function') var Minerals = require("../../public/helpers.js");
 function Player(x, y, r) {
+  var player = this;
   this.id = Helpers.getNextId();
   this.posx = x;
   this.posy = y;
@@ -10,12 +11,35 @@ function Player(x, y, r) {
   this.team = this.id;
 
   this.inAdventure = false;
+  this.reloading = false;
+  this.projectileSpeed = 2;
+  this.stroke = false;
+  this.fill = true;
+
+  Player.prototype.reload = function() {
+    setTimeout(function() {
+      player.reloading = false;
+    }, Minerals.minerals[player.engineFuel].reloadSpeed || 100);
+  };
 
   Player.prototype.shoot = function() {
+    
+    if(this.minerals[this.engineFuel] < 1 || this.reloading) return;
+    this.minerals[this.engineFuel] -= 1;
+
+    this.reloading = true;
+    this.reload();
+
     var x = Math.round(this.r * Math.cos(this.rotation) * 100) / 100;
     var y = Math.round(this.r * Math.sin(this.rotation) * (-1) * 100) / 100; 
-    var proj = new Projectile(this.posx + x, this.posy + y, 10, x /10, y/10, this.strokeStyle);
+    var proj = new Projectile(this.posx + x,
+                              this.posy + y,
+                              10,
+                              this.projectileSpeed * x /10,
+                              this.projectileSpeed * y / 10,
+                              this.strokeStyle);
     proj.team = this.team;
+    proj.damage = Minerals.minerals[this.engineFuel].damage;
     go.workspace.addToGrid(proj);
     setTimeout(function() {
       go.workspace.removeFromGrid(proj);
@@ -27,9 +51,9 @@ function Player(x, y, r) {
 
   Player.prototype.setEngineFuel = function(mineralName) {
     this.engineFuel = mineralName;
-    this.maxSpeed = minerals[mineralName].maxSpeed;
-    this.acceleration = minerals[mineralName].acceleration;
-    this.engineEfficiency = minerals[mineralName].engineEfficiency;
+    this.maxSpeed = Minerals.minerals[mineralName].maxSpeed;
+    this.acceleration = Minerals.minerals[mineralName].acceleration;
+    this.engineEfficiency = Minerals.minerals[mineralName].engineEfficiency;
   };
 
   Player.prototype.drainFuel = function() {
@@ -49,7 +73,7 @@ function Player(x, y, r) {
     this.currentlyMining = null;
   }
   Player.prototype.startMining = function(planet) {
-    if(planet.mineralCapacity <= 0 || this.currentlyMining === planet || !planet.minable) return;
+    if(!planet.minable || planet.mineralCapacity <= 0 || this.currentlyMining === planet) return;
 
     if(this.currentlyMining !== planet) this.stopMining();
 
@@ -59,7 +83,6 @@ function Player(x, y, r) {
     //   this.vx = this.vy = 0;
     //   Lightbox(planet.adventure, go.camera.width, go.camera.height);
     // }    
-
 
     this.currentlyMining = planet;
     planet.isMined = true;
@@ -71,7 +94,13 @@ function Player(x, y, r) {
       shape.miningCounter += 1;
       shape.minerals[planet.mineral.name] += shape.miningAmount/100;
       planet.mineralCapacity -= shape.miningAmount/100;
+      if(planet.mineralCapacity <= 0) {
+        planet.minable = false;
+        planet.isMined = false;
+        clearInterval(shape.miningTimer);
+      }
       planet.updateSize(planet.size - 1/100);
+      socket.emit('mining', planet);
       if(shape.miningCounter >= shape.miningSpeed ) {
         shape.stopMining();
         // shape.minerals[planet.mineral.name] += shape.miningAmount;
@@ -80,7 +109,7 @@ function Player(x, y, r) {
     }, 100)
   }
 
-  Player.prototype.move = function() {
+  Player.prototype.move = function(workspace) {
     // if(this.vxr == 0 && this.vxl == 0 && this.vyd == 0 && this.vyu == 0)
     //   return;
     // this.rotation = Math.PI/2 + (this.vyd + this.vyu ) * Math.PI/2;
@@ -104,12 +133,31 @@ function Player(x, y, r) {
     this.posx += this.vx;
     this.posy += this.vy;
 
+    // if player goes outside the bounds of the world
+    if(!workspace) var workspace = go.workspace;
+    
+    if(this.posx > workspace.width) {
+      this.posx = this.width;
+    }else 
+    if(this.posx < 0) {
+      this.posx = workspace.width - this.width;
+    }
+    
+    if(this.posy > workspace.height) {
+      this.posy = this.height;
+    }else
+    if(this.posy < 0) {
+      this.posy = workspace.height - this.height;
+    }
+
+
     this.setBoundingBox();
     // followers are other objects attached
     // to this object, ie mounted
     this.followers.forEach(function(obj) {
       obj.posx = shape.posx;
       obj.posy = shape.posy;
+      obj.setBoundingBox();
     });
     go.workspace.updateGrid(initialX, initialY, this);
   }
