@@ -10,7 +10,6 @@ var Player = require(__dirname + "/public/objects/player.js");
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
-  console.log(go.workspace.width);
 });
 
 app.get('/public/*', function(req, res) {
@@ -21,7 +20,6 @@ app.get('/public/*', function(req, res) {
 io.on('connection', function(socket) {
   console.log('a user connected' + socket.handshake.address);
   io.emit('connect2', 'A new user connected');
-
   var player = new Player(50000, 50000, 25);
   go.workspace.addToGrid(player);
 
@@ -51,7 +49,6 @@ io.on('connection', function(socket) {
     var tile = go.workspace.getGridTile(obj.posx, obj.posy);
     var storedObject = Helpers.getObjectOnId(tile, obj.id);
     storedObject.currentHP = obj.currentHP;
-    console.log(obj, storedObject);
   });
 
   socket.on('death', function(obj) {

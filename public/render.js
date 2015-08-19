@@ -84,6 +84,9 @@ function draw() {
       ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
       if(shape.fill) ct.fill();
       if(shape.stroke) ct.stroke();
+      if(typeof(shape.shoot) == 'function' && shape != player) {
+        shape.shoot();
+      }
     }
   };
   window.requestAnimationFrame(draw);
@@ -143,4 +146,14 @@ function draw() {
     }
     step += 1;
   })
+
+  // tab menu
+  ct = go.miniMap.context;
+  TabMenu.miniMap.drawGrid(ct);
+  
 }
+
+
+
+
+

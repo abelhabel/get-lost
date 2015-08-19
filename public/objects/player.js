@@ -27,6 +27,7 @@ function Player(x, y, r) {
     if(this.minerals[this.engineFuel] < 1 || this.reloading) return;
     this.minerals[this.engineFuel] -= 1;
 
+    this.projectileSpeed = Minerals.minerals[this.engineFuel].projectileSpeed
     this.reloading = true;
     this.reload();
 
@@ -37,7 +38,7 @@ function Player(x, y, r) {
                               10,
                               this.projectileSpeed * x /10,
                               this.projectileSpeed * y / 10,
-                              this.strokeStyle);
+                              Minerals.minerals[this.engineFuel].color);
     proj.team = this.team;
     proj.damage = Minerals.minerals[this.engineFuel].damage;
     go.workspace.addToGrid(proj);
@@ -152,13 +153,6 @@ function Player(x, y, r) {
 
 
     this.setBoundingBox();
-    // followers are other objects attached
-    // to this object, ie mounted
-    this.followers.forEach(function(obj) {
-      obj.posx = shape.posx;
-      obj.posy = shape.posy;
-      obj.setBoundingBox();
-    });
     go.workspace.updateGrid(initialX, initialY, this);
   }
   this.cotr = "Player";

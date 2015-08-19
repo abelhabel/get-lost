@@ -9,7 +9,8 @@ var input = {
   left: 65, // a
   right: 68, // d
   shootProjectile: 75, // k
-  stopMovement: 69
+  stopMovement: 69,
+  tab: 81 // q
 };
 function keyUp(e) {
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
@@ -28,9 +29,12 @@ function keyUp(e) {
     if(e.keyCode == input.down)
       player.moveDown = false;
   }
+
+  if(e.keyCode == input.tab) {
+    TabMenu.miniMap.close();
+  }
 }
 function keyDown(e) {
-
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
     if(!player.drainFuel())
       return;
@@ -52,6 +56,10 @@ function keyDown(e) {
 
   if(e.keyCode == input.stopMovement)
     player.vx = player.vy = 0;
+
+  if(e.keyCode == input.tab) {
+    if(!TabMenu.miniMap.visible) TabMenu.miniMap.open();
+  }
 }
 function uiMouseDown(e) {
   var arr = go.ui.minerals;

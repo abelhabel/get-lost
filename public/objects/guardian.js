@@ -1,8 +1,8 @@
 if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
 function Guardian(x, y, planet) {
+  this.id = Helpers.getNextId();
   var planet = planet || {};
   var guardian = this;
-  this.id = Helpers.getNextId();
   this.posx = x;
   this.posy = y;
   this.name = "Guardian of " + planet.name || "";

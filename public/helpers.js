@@ -1,6 +1,7 @@
 var Helpers = {
   getObjectOnId: function(arr, id) {
-    for(var i = 0, l = arr.length; i < l; i++) {
+    var l = arr ? arr.length : 0;
+    for(var i = 0; i < l; i++) {
       if(arr[i].id == id)
         return arr[i];
     }

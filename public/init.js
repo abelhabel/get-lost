@@ -30,9 +30,13 @@ if(!go.testing) {
       if(obj.cotr == "Player" && obj.id != player.id)
         newObj = Helpers.copyKeys(new Player(), obj);
 
-      if(obj.cotr == "Boss") {
-        newObj = Helpers.copyKeys(new Boss(), obj);
+      if(obj.cotr == "PolygonBoss") {
+        newObj = Helpers.copyKeys(new PolygonBoss(), obj);
         newObj.setRadian();
+      }
+
+      if(obj.cotr == "CircleBoss") {
+        newObj = Helpers.copyKeys(new CircleBoss(), obj);
       }
 
       if(obj.cotr == "Circle") {
@@ -43,25 +47,15 @@ if(!go.testing) {
     }
 
     msg.forEach(function(obj) {
+      if(go.idTable.hasOwnProperty(obj.id)) return;
       var shape = create(obj);
+      go.idTable[shape.id] = shape;
       go.workspace.addToGrid(shape);
       if(shape.follow) {
         var tile = go.workspace.getGridTile(shape.follow.posx, shape.follow.posy);
         var match = Helpers.getObjectOnId(tile, shape.follow.id);
         if(match) shape.follow = match
       }
-      // if(!shape.followers) return;
-      // var l = shape.followers.length;
-      // var arr = [];
-      // for(var i = 0; i < l; i += 1) {
-      //   arr.push(create(shape.followers[i]));
-      // }
-      // shape.followers = arr;
-      // go.workspace.addToGrid(shape);
-      // if(!printOnce) {
-      //   console.log(obj.followers, arr);
-      //   printOnce = true;
-      // }
     })
   });
 
@@ -106,10 +100,15 @@ function startGame() {
   if(go.testing) {
     testGalaxyLoad(400, 40, 200);
     objectsSync(10);
+
   }else {
     go.collisionTimer = setInterval(collisionLoop, 10);
     go.miningTimer = setInterval(miningLoop, 100);
     go.positionTimer = setInterval(positionLoop, 16);
+    TabMenu.miniMap.open();
+    TabMenu.miniMap.close();
+    go.miniMap.context.fillStyle = "#AAAAAA";
+    go.miniMap.context.fillRect(0, 0, TabMenu.miniMap.width, TabMenu.miniMap.height);
     draw();
   }
 }
