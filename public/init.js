@@ -5,50 +5,87 @@ var player;
 // go.workspace.addToGrid(player);
 go.backgroundImage = new Background();
 go.testing = false;
+
+function createGameObject(obj) {
+  var newObj = {};
+  if(obj.cotr == 'Planet')
+    newObj = Helpers.copyKeys(new Planet(), obj);
+
+  if(obj.cotr == "Guardian") {
+    newObj = Helpers.copyKeys(new Guardian(), obj);
+    newObj.setPoints();
+  }
+
+  if(obj.cotr == "Player" && obj.id != player.id)
+    newObj = Helpers.copyKeys(new Player(), obj);
+
+  if(obj.cotr == "PolygonBoss") {
+    newObj = Helpers.copyKeys(new PolygonBoss(), obj);
+    newObj.setRadian();
+  }
+
+  if(obj.cotr == "CircleBoss") {
+    newObj = Helpers.copyKeys(new CircleBoss(), obj);
+  }
+
+  if(obj.cotr == "Circle") {
+    newObj = Helpers.copyKeys(new Circle(), obj);
+  }
+
+  return newObj;
+}
+
+
 if(!go.testing) {
   // send new player to server only once
   socket.on('new player', function(msg) {
     player = Helpers.copyKeys(new Player(), msg);
     go.camera.follow = player;
-    go.workspace.addToGrid(player);
+    // go.workspace.addToGrid(player)
+    go.playersTable[player.id] = player;
     startGame();
     setUI();
   });
   printOnce = false;
-  socket.on('world section', function(msg) {
-
-    function create(obj) {
-      var newObj = {};
-      if(obj.cotr == 'Planet')
-        newObj = Helpers.copyKeys(new Planet(), obj);
-
-      if(obj.cotr == "Guardian") {
-        newObj = Helpers.copyKeys(new Guardian(), obj);
-        newObj.setPoints();
-      }
-
-      if(obj.cotr == "Player" && obj.id != player.id)
-        newObj = Helpers.copyKeys(new Player(), obj);
-
-      if(obj.cotr == "PolygonBoss") {
-        newObj = Helpers.copyKeys(new PolygonBoss(), obj);
-        newObj.setRadian();
-      }
-
-      if(obj.cotr == "CircleBoss") {
-        newObj = Helpers.copyKeys(new CircleBoss(), obj);
-      }
-
-      if(obj.cotr == "Circle") {
-        newObj = Helpers.copyKeys(new Circle(), obj);
-      }
-
-      return newObj;
+  socket.on('player position', function(msg) {
+    if(go.playersTable.hasOwnProperty(msg.id)) {
+      go.playersTable[msg.id].posx = msg.posx;
+      go.playersTable[msg.id].posy = msg.posy;
     }
+  })
 
+  socket.on('add player', function(msg) {
+    newPlayer = Helpers.copyKeys(new Player(), msg);
+    newPlayer.setBoundingBox();
+    
+    go.playersTable[newPlayer.id] = newPlayer;
+
+  });
+
+  socket.on('add other players', function(msg) {
+    var oldPlayer;
+    for(key in msg) {
+      oldPlayer = msg[key];
+      if(oldPlayer.id == player.id) continue;
+      go.playersTable[oldPlayer.id] = Helpers.copyKeys(new Player(), oldPlayer);
+    }
+  });
+
+  socket.on('remove player', function(msg) {
+    delete go.playersTable[msg.id];
+  });
+
+  socket.on('world section', function(msg) {
+    // var startTime = window.performance.now();
     msg.forEach(function(obj) {
-      if(go.idTable.hasOwnProperty(obj.id)) return;
-      var shape = create(obj);
+      if(go.idTable.hasOwnProperty(obj.id)) {
+        if(obj.cotr == "Planet") {
+          go.idTable[obj.id].isMined = go.idTable[obj.id].isMined || obj.isMined;
+          go.idTable[obj.id].updateSize(obj.size);
+        }
+        return;
+      }
+      var shape = createGameObject(obj);
       go.idTable[shape.id] = shape;
       go.workspace.addToGrid(shape);
       if(shape.follow) {
@@ -57,12 +94,13 @@ if(!go.testing) {
         if(match) shape.follow = match
       }
     })
+    // var endTime = window.performance.now();
+    // console.log(endTime - startTime);
   });
 
   socket.on('mining', function(obj) {
-    var tile = go.workspace.getGridTile(obj.posx, obj.posy);
-    var storedObject = Helpers.getObjectOnId(tile, obj.id);
-    if(obj.cotr == 'Planet') {
+    var storedObject = go.idTable[obj.id];
+    if(obj && obj.cotr == 'Planet') {
       storedObject.updateSize(obj.size);
       storedObject.mineralCapacity = obj.mineralCapacity;
       storedObject.minable = obj.minable;
@@ -71,7 +109,7 @@ if(!go.testing) {
   });
 
   socket.on('connect2', function(msg){
-    console.log(msg);
+    
   });
 }
 // ui
@@ -94,7 +132,7 @@ function setUI() {
 }
 
 function positionLoop() {
-  socket.emit('move', go.camera);
+  socket.emit('move', {camera: go.camera, player: player});
 }
 function startGame() {
   if(go.testing) {
@@ -102,13 +140,13 @@ function startGame() {
     objectsSync(10);
 
   }else {
-    go.collisionTimer = setInterval(collisionLoop, 10);
-    go.miningTimer = setInterval(miningLoop, 100);
-    go.positionTimer = setInterval(positionLoop, 16);
-    TabMenu.miniMap.open();
-    TabMenu.miniMap.close();
+    go.collisionTimer = setInterval(collisionLoop, 8);
+    go.miningTimer = setInterval(miningLoop, 10);
+    go.positionTimer = setInterval(positionLoop, 8);
+    HUD.miniMap.open();
+    HUD.miniMap.close();
     go.miniMap.context.fillStyle = "#AAAAAA";
-    go.miniMap.context.fillRect(0, 0, TabMenu.miniMap.width, TabMenu.miniMap.height);
+    go.miniMap.context.fillRect(0, 0, HUD.miniMap.width, HUD.miniMap.height);
     draw();
   }
 }

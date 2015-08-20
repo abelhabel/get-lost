@@ -1,4 +1,11 @@
-var TabMenu = {
+var HUD = {
+  display: {
+    lines: [
+      new Line(0, 9, 22, 9, go.ui.lineColor),
+      new Line(0, 89, 22, 89, go.ui.lineColor),
+      new Line(22, 9, 36, 33, go.ui.lineColor)
+    ]
+  },
   miniMap: {
     width: 125,
     height: 125,
@@ -10,7 +17,7 @@ var TabMenu = {
     gridSize: 375 / (100000 / 1600),
     drawGrid: function(ct) {
       ct.fillStyle = "#FF0000";
-      // ct.fillRect(0, 0, TabMenu.miniMap.width, TabMenu.miniMap.height);
+      // ct.fillRect(0, 0, HUD.miniMap.width, HUD.miniMap.height);
       function translate(pos) {
         return Math.ceil(pos / (100000/375));
       }

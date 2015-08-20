@@ -15,7 +15,7 @@ function Player(x, y, r) {
   this.projectileSpeed = 2;
   this.stroke = false;
   this.fill = true;
-
+  this.fillStyle = Helpers.getRGB();
   Player.prototype.reload = function() {
     setTimeout(function() {
       player.reloading = false;
@@ -26,7 +26,7 @@ function Player(x, y, r) {
     
     if(this.minerals[this.engineFuel] < 1 || this.reloading) return;
     this.minerals[this.engineFuel] -= 1;
-
+    console.log(this);
     this.projectileSpeed = Minerals.minerals[this.engineFuel].projectileSpeed
     this.reloading = true;
     this.reload();
@@ -151,9 +151,10 @@ function Player(x, y, r) {
       this.posy = workspace.height - this.height;
     }
 
+    
 
     this.setBoundingBox();
-    go.workspace.updateGrid(initialX, initialY, this);
+    // go.workspace.updateGrid(initialX, initialY, this);
   }
   this.cotr = "Player";
 }

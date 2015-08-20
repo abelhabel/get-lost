@@ -31,7 +31,7 @@ function keyUp(e) {
   }
 
   if(e.keyCode == input.tab) {
-    TabMenu.miniMap.close();
+    HUD.miniMap.close();
   }
 }
 function keyDown(e) {
@@ -58,7 +58,7 @@ function keyDown(e) {
     player.vx = player.vy = 0;
 
   if(e.keyCode == input.tab) {
-    if(!TabMenu.miniMap.visible) TabMenu.miniMap.open();
+    if(!HUD.miniMap.visible) HUD.miniMap.open();
   }
 }
 function uiMouseDown(e) {

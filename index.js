@@ -8,6 +8,20 @@ var Bosses = require("bosses/bosses.js");
 var Helpers = require(__dirname + "/public/helpers.js");
 var Player = require(__dirname + "/public/objects/player.js");
 
+
+function addPlayer(player) {
+  if(go.playersTable.hasOwnProperty(player.id)) return;
+
+  go.playersTable[player.id] = player;
+}
+
+function removePlayer(player) {
+  if(go.playersTable.hasOwnProperty(player.id)) {
+    delete go.playersTable[player.id];
+  }
+}
+
+
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
@@ -19,30 +33,38 @@ app.get('/public/*', function(req, res) {
 
 io.on('connection', function(socket) {
   console.log('a user connected' + socket.handshake.address);
-  io.emit('connect2', 'A new user connected');
   var player = new Player(50000, 50000, 25);
-  go.workspace.addToGrid(player);
+  addPlayer(player);
+  // go.workspace.addToGrid(player);
 
   socket.clientPlayer = player;
-  console.log('connecting', socket.clientPlayer);
   socket.emit('new player', player);
+  socket.emit('add other players', go.playersTable);
+
+
+  socket.broadcast.emit('add player', player);
+
+  
 
   socket.on('disconnect', function() {
     console.log('user disconnected');
-    var player = socket.clientPlayer;
-    var tile = go.workspace.getGridTilesOnObject(socket.clientPlayer);
-    var storedObject = Helpers.getObjectOnId(tile, player.id);
-    go.workspace.removeFromGrid(player);
-    console.log('disconnecting', socket.clientPlayer);
+    removePlayer(socket.clientPlayer);
+    socket.broadcast.emit('remove player', socket.clientPlayer);
   });
 
   socket.on('player shoot', function(msg) {
     // console.log(msg);
   });
 
-  socket.on('move', function(obj) {
-    var objects = go.workspace.getGridTilesOnObject(obj);
-    socket.emit('world section', objects);
+  socket.on('move', function(msg) {
+    var player = msg.player;
+    player.updateCounter = Date.now();
+    go.playersTable[player.id] = player;
+    socket.broadcast.emit('player position', player);
+
+    var camera = msg.camera;
+    var storedObjects = go.workspace.getGridTilesOnObject(camera);
+    socket.emit('world section', storedObjects);
   });
 
   socket.on('take damage', function(obj) {
@@ -59,14 +81,13 @@ io.on('connection', function(socket) {
   });
 
   socket.on('mining', function(obj) {
-    var tile = go.workspace.getGridTile(obj.posx, obj.posy);
-    var storedObject = Helpers.getObjectOnId(tile, obj.id);
-    if(obj.cotr == 'Planet') {
+    var storedObject = go.idTable[obj.id];
+    if(obj && obj.cotr == 'Planet') {
       storedObject.updateSize(obj.size);
       storedObject.mineralCapacity = obj.mineralCapacity;
       storedObject.minable = obj.minable;
       storedObject.isMined = obj.isMined;
-      io.emit('size change', storedObject);
+      socket.broadcast.emit('mining', storedObject);
     }
   });
 });

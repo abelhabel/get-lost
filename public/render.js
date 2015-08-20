@@ -1,29 +1,29 @@
 function draw() {
+  window.requestAnimationFrame(draw);
 
-
-  function renderFilter(shape) {
+  function renderShape(shape, context) {
     if(shape.dead) return;
     if( typeof(shape.move) == 'function' && (shape.follow || shape.vx != 0 || shape.vy != 0) && shape != player) {
       shape.move();
     }
     if(shape instanceof Planet) {
-      render.Planet(shape);
+      render.Planet(shape, context);
     }else
     if(shape instanceof Polygon) {
-      render.Polygon(shape);
+      render.Polygon(shape, context);
     }else
     if(shape instanceof Circle) {
-      render.Circle(shape);
+      render.Circle(shape, context);
     }
   }
 
   var render = {
-    Polygon: function renderPolygon(shape) {
+    Polygon: function renderPolygon(shape, ct) {
       ct.setLineDash([]);
       if(shape.playAnimation)
         shape.playAnimation();
       
-      if(typeof(shape.shoot) == 'function' && shape != player) {
+      if(typeof(shape.shoot) == 'function' && !(shape instanceof Player)) {
         shape.shoot();
       }
 
@@ -53,7 +53,7 @@ function draw() {
       }
     },
 
-    Planet: function renderPlanet(shape) {
+    Planet: function renderPlanet(shape, ct) {
       // console.log(1);
       ct.beginPath();
       ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
@@ -75,7 +75,7 @@ function draw() {
       ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
     },
 
-    Circle: function renderCircle(shape) {
+    Circle: function renderCircle(shape, ct) {
       ct.setLineDash([]);
       ct.beginPath();
       ct.fillStyle = shape.fillStyle;
@@ -89,7 +89,7 @@ function draw() {
       }
     }
   };
-  window.requestAnimationFrame(draw);
+  
   var ct = go.screen.context;
   go.camera.move();
   player.move();
@@ -103,15 +103,24 @@ function draw() {
   var ox = go.camera.xmin;
   var oy = go.camera.ymin;
   shapes.forEach(function(shape) {
-    renderFilter(shape);
+    renderShape(shape, go.screen.context);
 
     if(shape.followers) {
       shape.followers.forEach(function(shape) {
-        renderFilter(shape);
+        renderShape(shape, go.screen.context);
       })
     }
 
   });
+
+  var keys = Object.keys(go.playersTable);
+  var key, pl;
+  go.playersScreen.context.clearRect(0,0,go.playersScreen.width, go.playersScreen.height);
+  for(var i = 0, l = keys.length; i < l; i += 1) {
+    key = keys[i];
+    renderShape(go.playersTable[key], go.playersScreen.context);
+    // console.log(go.playersTable[key].id, go.playersTable[key].posx, go.playersTable[key].posy);
+  }
 
   // UI
   ct = go.uiScreen.context;
@@ -145,11 +154,19 @@ function draw() {
       ct.fillText(parseInt(player.minerals[mineral.name]), mineral.xmin, mineral.ymin + mineral.height + go.ui.smallFont*2);
     }
     step += 1;
-  })
+  });
+  // scaleX = go.uiScreen.width / 100;
+  // scaleY = go.uiScreen.height / 100;
+  // HUD.display.lines.forEach(function(line) {
+  //   ct.strokeStyle = line.strokeStyle;
+  //   ct.moveTo(line.xmin * scaleX, line.ymin * scaleY);
+  //   ct.lineTo(line.xmax * scaleX, line.ymax * scaleY);
+  //   ct.stroke();
+  // });
 
   // tab menu
   ct = go.miniMap.context;
-  TabMenu.miniMap.drawGrid(ct);
+  HUD.miniMap.drawGrid(ct);
   
 }
 

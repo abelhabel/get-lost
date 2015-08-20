@@ -4,5 +4,6 @@ function UI() {
   this.mediumFont = 16;
   this.largeFont = 22;
   this.minerals = [];
-  this.fontColor = "#FFFFFF"
+  this.fontColor = "#FFFFFF";
+  this.lineColor = "00FF00";
 }
