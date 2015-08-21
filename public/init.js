@@ -41,7 +41,7 @@ if(!go.testing) {
   socket.on('new player', function(msg) {
     player = Helpers.copyKeys(new Player(), msg);
     go.camera.follow = player;
-    player.currentWorldTile = go.workspace.getGridTile(player.posx, player.posy);
+    go.currentWorldTile = go.workspace.getGridTile(player.posx, player.posy);
     player.setEngineFuel("Cermonophen");
     go.playersTable[player.id] = player;
     startGame();
@@ -78,6 +78,10 @@ if(!go.testing) {
 
   socket.on('world section', function(msg) {
     // var startTime = window.performance.now();
+    go.lastTime = window.performance.now() - go.timeStamp;
+    go.average = go.average || go.lastTime;
+    go.average = (go.average + go.lastTime) / 2;
+    console.log('received new world tile', go.average);
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
         if(obj.cotr == "Planet") {
@@ -90,9 +94,7 @@ if(!go.testing) {
       go.idTable[shape.id] = shape;
       go.workspace.addToGrid(shape);
       if(shape.follow) {
-        var tile = go.workspace.getGridTile(shape.follow.posx, shape.follow.posy);
-        var match = Helpers.getObjectOnId(tile, shape.follow.id);
-        if(match) shape.follow = match
+        shape.follow = go.idTable[shape.follow.id + ""];
       }
     })
     // var endTime = window.performance.now();
@@ -145,7 +147,7 @@ function startGame() {
   }else {
     go.collisionTimer = setInterval(collisionLoop, 8);
     go.miningTimer = setInterval(miningLoop, 100);
-    go.positionTimer = setInterval(positionLoop, 8);
+    go.positionTimer = setInterval(positionLoop, 32);
     HUD.miniMap.open();
     HUD.miniMap.close();
     go.miniMap.context.fillStyle = "#AAAAAA";

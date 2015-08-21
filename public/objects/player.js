@@ -136,11 +136,20 @@ function Player(x, y, r) {
 
 
     this.setBoundingBox();
-    // var tile = go.workspace.getGridTile(this.posx, this.posy);
-    // if( tile !== this.currentWorldTile) {
-    //   socket.emit('get new world tile', {player: this, camera: go.camera});
-    //   player.currentWorldTile = tile;
-    // }
+    var tile = go.workspace.getGridTile(this.posx, this.posy);
+    if( tile !== go.currentWorldTile) {
+      go.timeStamp = window.performance.now()
+      console.log('requesting new world tile');
+      socket.emit('get new world tile', {
+                                          xmin: this.posx - go.gridSize,
+                                          ymin: this.posy - go.gridSize,
+                                          xmax: this.posx + go.gridSize,
+                                          ymax: this.posy + go.gridSize,
+                                          posx: this.posx,
+                                          posy: this.posy
+                                        });
+      go.currentWorldTile = tile;
+    }
   }
   this.cotr = "Player";
 }
