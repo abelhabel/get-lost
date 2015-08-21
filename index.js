@@ -1,7 +1,11 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io', { 
+  rememberTransport: false, 
+  transports: ['WebSocket', 'Flash Socket', 'AJAX long-polling'] 
+})(http);
+
 var go = require('world/populate.js');
 var Bosses = require("bosses/bosses.js");
 
@@ -41,20 +45,20 @@ app.get('/public/*', function(req, res) {
 io.on('connection', function(socket) {
   // Initial connection of a new player
   // 1. create player
-  var player = new Player(50000, 50000, 25);
-  socket.clientPlayer = player;
+  socket.clientPlayer = new Player(50000, 50000, 25);
+  socket.clientPlayer = socket.clientPlayer;
 
   // 2. store socket
   go.sockets.push(socket);
 
   // 3. return player
-  socket.emit('new player', player);
+  socket.emit('new player', socket.clientPlayer);
 
   // 4. broadcast player
-  socket.broadcast.emit('add player', player);
+  socket.broadcast.emit('add player', socket.clientPlayer);
 
   // 5. return all other players
-  var otherPlayers = getOtherPlayersThan(player);
+  var otherPlayers = getOtherPlayersThan(socket.clientPlayer);
   socket.emit('add other players', otherPlayers);
   
 

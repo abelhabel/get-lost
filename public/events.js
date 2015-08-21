@@ -3,6 +3,7 @@ window.addEventListener('keydown', keyDown, false);
 window.addEventListener('keyup', keyUp, false);
 window.addEventListener('mousemove', uiMouseMove, false);
 window.addEventListener('mousedown', uiMouseDown, false);
+window.addEventListener('resize', resizeScreen, false);
 var input = {
   up: 87, // w
   down: 83, // s
@@ -89,3 +90,27 @@ function uiMouseMove(e) {
   });
 
 }
+
+
+function resizeScreen(e) {
+  // console.log('resize');
+  // go.screen.width = 
+  // go.uiScreen.width = 
+  // go.playerScreen.width = 
+  // go.camera.width = e.width;
+
+  // go.screen.height = 
+  // go.uiScreen.height = 
+  // go.playerScreen.height = 
+  // go.camera.height = e.height;
+}
+
+
+
+
+
+
+
+
+
+
