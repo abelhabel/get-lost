@@ -136,7 +136,11 @@ function Player(x, y, r) {
 
 
     this.setBoundingBox();
-    // go.workspace.updateGrid(initialX, initialY, this);
+    // var tile = go.workspace.getGridTile(this.posx, this.posy);
+    // if( tile !== this.currentWorldTile) {
+    //   socket.emit('get new world tile', {player: this, camera: go.camera});
+    //   player.currentWorldTile = tile;
+    // }
   }
   this.cotr = "Player";
 }

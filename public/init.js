@@ -41,6 +41,7 @@ if(!go.testing) {
   socket.on('new player', function(msg) {
     player = Helpers.copyKeys(new Player(), msg);
     go.camera.follow = player;
+    player.currentWorldTile = go.workspace.getGridTile(player.posx, player.posy);
     player.setEngineFuel("Cermonophen");
     go.playersTable[player.id] = player;
     startGame();
@@ -132,7 +133,9 @@ function setUI() {
 }
 
 function positionLoop() {
-  socket.emit('move', {camera: go.camera, player: player});
+  if(player.vx != 0 || player.vy != 0) {
+    socket.emit('move', {camera: go.camera, player: player, timeStamp: Date.now()});
+  }
 }
 function startGame() {
   if(go.testing) {

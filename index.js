@@ -84,11 +84,15 @@ io.on('connection', function(socket) {
     player.updateCounter = Date.now();
     go.playersTable[player.id] = player;
     socket.broadcast.emit('player position', player);
-
-    var camera = msg.camera;
-    var storedObjects = go.workspace.getGridTilesOnObject(camera);
-    socket.emit('world section', storedObjects);
+    console.log(msg.player.id, Date.now() - msg.timeStamp);
+   
   });
+
+  // socket.on('get new world tile', function(msg) {
+  //   var camera = msg.camera;
+  //   var storedObjects = go.workspace.getGridTilesOnObject(camera);
+  //   socket.emit('world section', storedObjects);
+  // });
 
   socket.on('take damage', function(obj) {
     var tile = go.workspace.getGridTile(obj.posx, obj.posy);
