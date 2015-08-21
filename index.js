@@ -9,6 +9,12 @@ var io = require('socket.io', {
 http.listen(process.env.PORT || 3000, function(){
   // console.log('listening on *:3000');
 });
+// memory leaks testing
+var memwatch = require('memwatch');
+memwatch.on('leak', function(info) {
+// look at info to find out about what might be leaking
+console.log('leaking');
+});
 var go = require('world/populate.js');
 var Bosses = require("bosses/bosses.js");
 
@@ -84,15 +90,14 @@ io.on('connection', function(socket) {
     player.updateCounter = Date.now();
     go.playersTable[player.id] = player;
     socket.broadcast.emit('player position', player);
-    console.log(msg.player.id, Date.now() - msg.timeStamp);
+    // console.log(msg.player.id, Date.now() - msg.timeStamp);
    
   });
 
-  // socket.on('get new world tile', function(msg) {
-  //   var camera = msg.camera;
-  //   var storedObjects = go.workspace.getGridTilesOnObject(camera);
-  //   socket.emit('world section', storedObjects);
-  // });
+  socket.on('get new world tile', function(msg) {
+    var storedObjects = go.workspace.getGridTilesOnObject(msg);
+    socket.emit('world section', storedObjects);
+  });
 
   socket.on('take damage', function(obj) {
     var tile = go.workspace.getGridTile(obj.posx, obj.posy);
