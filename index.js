@@ -9,8 +9,7 @@ var io = require('socket.io', {
 http.listen(process.env.PORT || 3000, function(){
   // console.log('listening on *:3000');
 });
-
-
+// memory leaks testing
 var go = require('world/populate.js');
 var Bosses = require("bosses/bosses.js");
 
