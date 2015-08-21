@@ -3,8 +3,15 @@ function miningLoop() {
 
   arr.forEach(function(obj) {
     if(obj instanceof Planet) {
-      if(intersectCircle(player, obj))
+      obj.isMined = false;
+      if(intersectCircle(player, obj)) {
         player.startMining(obj);
+      }else
+      {
+        obj.isMined = false;
+        player.currentlyMining = false;
+      }
+      socket.emit('mining', obj);
     }
   })
 }

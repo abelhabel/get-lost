@@ -16,11 +16,18 @@ function addPlayer(player) {
 }
 
 function removePlayer(player) {
-  if(go.playersTable.hasOwnProperty(player.id)) {
-    delete go.playersTable[player.id];
-  }
+  delete go.playersTable[player.id];
 }
 
+function getOtherPlayersThan(thisPlayer) {
+  var arr = [];
+  go.sockets.forEach(function(storedSocket) {
+    if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id) {
+      arr.push(storedSocket.clientPlayer);
+    }
+  });
+  return arr;
+}
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
@@ -32,18 +39,27 @@ app.get('/public/*', function(req, res) {
 });
 
 io.on('connection', function(socket) {
-  console.log('a user connected' + socket.handshake.address);
+  // Initial connection of a new player
+  // 1. create player
   var player = new Player(50000, 50000, 25);
-  addPlayer(player);
-  // go.workspace.addToGrid(player);
-
   socket.clientPlayer = player;
+
+  // 2. store socket
+  go.sockets.push(socket);
+
+  // 3. return player
   socket.emit('new player', player);
-  socket.emit('add other players', go.playersTable);
 
-
+  // 4. broadcast player
   socket.broadcast.emit('add player', player);
 
+  // 5. return all other players
+  var otherPlayers = getOtherPlayersThan(player);
+  socket.emit('add other players', otherPlayers);
+  
+
+  console.log('a user connected' + socket.handshake.address);
+  // send this player to all other already connected players
   
 
   socket.on('disconnect', function() {
@@ -53,7 +69,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('player shoot', function(msg) {
-    // console.log(msg);
+    socket.broadcast.emit('player shoot', msg);
   });
 
   socket.on('move', function(msg) {

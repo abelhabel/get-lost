@@ -17,14 +17,16 @@ function Player(x, y, r) {
   this.fill = true;
   this.fillStyle = Helpers.getRGB();
   Player.prototype.reload = function() {
+    var thisPlayer = this;
     setTimeout(function() {
-      player.reloading = false;
+      thisPlayer.reloading = false;
     }, Minerals.minerals[player.engineFuel].reloadSpeed || 100);
   };
 
   Player.prototype.shoot = function() {
     
     if(this.minerals[this.engineFuel] < 1 || this.reloading) return;
+    socket.emit('player shoot', this);
     this.minerals[this.engineFuel] -= 1;
     console.log(this);
     this.projectileSpeed = Minerals.minerals[this.engineFuel].projectileSpeed
@@ -68,46 +70,26 @@ function Player(x, y, r) {
 
   Player.prototype.stopMining = function() {
     clearInterval(this.miningTimer);
+
     this.miningTimer = null;
     this.miningCounter = 0;
     if(this.currentlyMining) this.currentlyMining.isMined = false;
     this.currentlyMining = null;
   }
   Player.prototype.startMining = function(planet) {
-    if(!planet.minable || planet.mineralCapacity <= 0 || this.currentlyMining === planet) return;
-
-    if(this.currentlyMining !== planet) this.stopMining();
 
     // adventure prototype code
     // if(!this.inAdventure && planet.adventure) {
     //   this.inAdventure = true;
     //   this.vx = this.vy = 0;
     //   Lightbox(planet.adventure, go.camera.width, go.camera.height);
-    // }    
-
+    // } 
     this.currentlyMining = planet;
     planet.isMined = true;
-    var shape = this;
-    this.miningTimer = setInterval(function() {
-      if(!intersectCircle(shape, planet)) {
-        shape.stopMining();
-      }        
-      shape.miningCounter += 1;
-      shape.minerals[planet.mineral.name] += shape.miningAmount/100;
-      planet.mineralCapacity -= shape.miningAmount/100;
-      if(planet.mineralCapacity <= 0) {
-        planet.minable = false;
-        planet.isMined = false;
-        clearInterval(shape.miningTimer);
-      }
-      planet.updateSize(planet.size - 1/100);
-      socket.emit('mining', planet);
-      if(shape.miningCounter >= shape.miningSpeed ) {
-        shape.stopMining();
-        // shape.minerals[planet.mineral.name] += shape.miningAmount;
-        // planet.mineralCapacity -= shape.miningAmount/100;
-      }
-    }, 100)
+    planet.mineralCapacity -= this.miningSpeed;
+    planet.size -= 0.01;
+    planet.updateSize(planet.size);
+    this.minerals[planet.mineral.name] += 0.1;
   }
 
   Player.prototype.move = function(workspace) {
@@ -151,7 +133,7 @@ function Player(x, y, r) {
       this.posy = workspace.height - this.height;
     }
 
-    
+
 
     this.setBoundingBox();
     // go.workspace.updateGrid(initialX, initialY, this);

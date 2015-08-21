@@ -38,7 +38,7 @@ function GameObject() {
   this.maxSpeed = 7;
   this.acceleration = 1.3;
   this.engineEfficiency = 1;
-  this.miningSpeed = 10; //seconds
+  this.miningSpeed = 0.1;
   this.miningAmount = 10; //units of mineral per mining
 
   this.miningCounter = 0;

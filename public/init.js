@@ -41,7 +41,7 @@ if(!go.testing) {
   socket.on('new player', function(msg) {
     player = Helpers.copyKeys(new Player(), msg);
     go.camera.follow = player;
-    // go.workspace.addToGrid(player)
+    player.setEngineFuel("Cermonophen");
     go.playersTable[player.id] = player;
     startGame();
     setUI();
@@ -63,12 +63,12 @@ if(!go.testing) {
   });
 
   socket.on('add other players', function(msg) {
-    var oldPlayer;
+    var newPlayer;
     for(key in msg) {
-      oldPlayer = msg[key];
-      if(oldPlayer.id == player.id) continue;
-      go.playersTable[oldPlayer.id] = Helpers.copyKeys(new Player(), oldPlayer);
+      newPlayer = msg[key];
+      go.playersTable[newPlayer.id] = Helpers.copyKeys(new Player(), newPlayer);
     }
+    
   });
 
   socket.on('remove player', function(msg) {
@@ -80,7 +80,7 @@ if(!go.testing) {
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
         if(obj.cotr == "Planet") {
-          go.idTable[obj.id].isMined = go.idTable[obj.id].isMined || obj.isMined;
+          go.idTable[obj.id].isMined = obj.isMined;
           go.idTable[obj.id].updateSize(obj.size);
         }
         return;
@@ -100,7 +100,7 @@ if(!go.testing) {
 
   socket.on('mining', function(obj) {
     var storedObject = go.idTable[obj.id];
-    if(obj && obj.cotr == 'Planet') {
+    if(storedObject && storedObject.cotr == 'Planet') {
       storedObject.updateSize(obj.size);
       storedObject.mineralCapacity = obj.mineralCapacity;
       storedObject.minable = obj.minable;
@@ -108,9 +108,9 @@ if(!go.testing) {
     }
   });
 
-  socket.on('connect2', function(msg){
-    
-  });
+  socket.on('player shoot', function(msg) {
+    go.playersTable[msg.id].shoot();
+  })
 }
 // ui
 function setUI() {
@@ -141,7 +141,7 @@ function startGame() {
 
   }else {
     go.collisionTimer = setInterval(collisionLoop, 8);
-    go.miningTimer = setInterval(miningLoop, 10);
+    go.miningTimer = setInterval(miningLoop, 100);
     go.positionTimer = setInterval(positionLoop, 8);
     HUD.miniMap.open();
     HUD.miniMap.close();

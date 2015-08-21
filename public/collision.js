@@ -26,6 +26,9 @@ function collisionLoop() {
   // c = circle
   // s = square
   var shapes = go.workspace.getGridTilesOnObject(go.camera);
+  for(key in go.playersTable) {
+    shapes.push(go.playersTable[key]);
+  }
   var s1, s2;
   for(var i = 0; i < shapes.length; i += 1) {
     s1 = shapes[i];
