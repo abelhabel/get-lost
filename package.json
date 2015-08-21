@@ -1,16 +1,22 @@
 {
-  "name": "Get Lost",
-  "version": "0.0.1",
-  "description": "Get lost in space exploration",
+  "name": "node-example",
+  "version": "1.0.0",
+  "description": "Space exploration.",
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "space",
+    "heroku"
+  ],
+  "author": "Andreas Olsson",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.10.2",
+    "express": "^4.9.8",
     "socket.io": "^1.3.6"
   },
   "engines": {
-    "node": "0.10.32"
-  },
-  "scripts": {
-    "start": "node index.js"
+    "node": "0.10.x"
   }
 }
