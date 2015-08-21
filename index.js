@@ -3,9 +3,12 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io', { 
   rememberTransport: false, 
-  transports: ['WebSocket', 'Flash Socket', 'AJAX long-polling'] 
+  transports: ['WebSocket', 'AJAX long-polling'] 
 })(http);
 
+http.listen(process.env.PORT || 3000, function(){
+  // console.log('listening on *:3000');
+});
 var go = require('world/populate.js');
 var Bosses = require("bosses/bosses.js");
 
@@ -113,6 +116,3 @@ io.on('connection', function(socket) {
 });
 
 
-http.listen(process.env.PORT || 3000, function(){
-  // console.log('listening on *:3000');
-});
