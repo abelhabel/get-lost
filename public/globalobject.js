@@ -1,6 +1,7 @@
 var go = {
   idTable: {},
-  playersTable: {}
+  playersTable: {},
+  totalSprites: 0
 };
 
 if(typeof module != 'undefined') module.exports = go;

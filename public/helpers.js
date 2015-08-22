@@ -16,6 +16,40 @@ var Helpers = {
     return to;
   },
 
+  move: function(shape) {
+    shape.posx += shape.vx || 0;
+    shape.posy += shape.vy || 0;
+    shape.setBoundingBox();
+    
+    // var workspace = go.workspace;
+    
+    // if(shape.posx > workspace.width) {
+    //   shape.posx = 500;
+    // }else 
+    // if(shape.posx < 0) {
+    //   shape.posx = workspace.width - 500;
+    // }
+    
+    // if(shape.posy > workspace.height) {
+    //   shape.posy = 500;
+    // }else
+    // if(shape.posy < 0) {
+    //   shape.posy = workspace.height - 500;
+    // }
+
+    // move if following
+    
+    if(shape.follow) {
+      shape.rotation += shape.rotationSpeed;
+      shape.followRotation += shape.followRotationSpeed;
+      if(shape.followPattern) {
+        FollowPatterns[shape.followPattern](shape, shape.followRotation);
+      }else {
+        shape.posx = shape.follow.posx;
+        shape.posy = shape.follow.posy;
+      }
+    }
+  },
   getNextId: function getNextId() {
     if(typeof(window) == 'object')  {
       var global = window;

@@ -4,7 +4,7 @@ function draw() {
   function renderShape(shape, context) {
     if(shape.dead) return;
     if( typeof(shape.move) == 'function' && (shape.follow || shape.vx != 0 || shape.vy != 0) && shape != player) {
-      shape.move();
+      Helpers.move(shape);
     }
     if(shape instanceof Planet) {
       render.Planet(shape, context);
@@ -54,25 +54,26 @@ function draw() {
     },
 
     Planet: function renderPlanet(shape, ct) {
-      // console.log(1);
-      ct.beginPath();
-      ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
-      ct.lineWidth = shape.lineThickness;
-      ct.fillStyle = shape.fillStyle;
-      ct.fill();
-      ct.strokeStyle = shape.strokeStyle;
-      if(shape.isMined && ct.setLineDash) {
-        ct.strokeStyle = "#FFFFFF";
-        ct.setLineDash([5]);
-      }else {
-        ct.setLineDash([]);
-      }
+      var img = go.sprites[shape.mineral.name].image;
+      ct.drawImage(img, shape.posx - ox - shape.r, shape.posy - oy - shape.r, shape.r*2, shape.r*2);
+      // ct.beginPath();
+      // ct.arc(shape.posx - ox, shape.posy - oy, shape.r, 0, Math.PI * 2);
+      // ct.lineWidth = shape.lineThickness;
+      // ct.fillStyle = shape.fillStyle;
+      // ct.fill();
+      // ct.strokeStyle = shape.strokeStyle;
+      // if(shape.isMined && ct.setLineDash) {
+      //   ct.strokeStyle = "#FFFFFF";
+      //   ct.setLineDash([5]);
+      // }else {
+      //   ct.setLineDash([]);
+      // }
       
-      ct.stroke();
-      ct.fillStyle = "#FFFFFF";
-      ct.font = "20px Terminal";
-      var textWidth = ct.measureText(shape.name).width;
-      ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
+      // ct.stroke();
+      // ct.fillStyle = "#FFFFFF";
+      // ct.font = "20px Terminal";
+      // var textWidth = ct.measureText(shape.name).width;
+      // ct.fillText(shape.name, shape.posx - ox - textWidth/2, shape.posy - oy);
     },
 
     Circle: function renderCircle(shape, ct) {
@@ -96,7 +97,7 @@ function draw() {
   ct.clearRect(0, 0, go.screen.width, go.screen.height);
   ct.fillStyle = go.workspace.backgroundColor;
   // ct.fillRect(0, 0, go.screen.width, go.screen.height);
-  ct.drawImage(go.backgroundImage.img, 0, 0, go.screen.width, go.screen.height);
+  // ct.drawImage(go.bgScreen.img, 0, 0, go.bgScreen.width, go.bgScreen.height);
   //testing rectangles for camera
   var shapes = go.workspace.getGridTilesOnObject(go.camera);
   // Camere Offset

@@ -22,7 +22,6 @@ var HUD = {
         return Math.ceil(pos / (100000/375));
       }
       var tile = go.workspace.getGridTile(player.posx, player.posy);
-      ct
       tile.forEach(function(shape) {
         ct.fillStyle = "#FF0000";
         if(shape instanceof Projectile || shape instanceof Player || shape instanceof Camera) {

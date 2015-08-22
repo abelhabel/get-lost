@@ -2,7 +2,9 @@
 window.addEventListener('keydown', keyDown, false);
 window.addEventListener('keyup', keyUp, false);
 window.addEventListener('mousemove', uiMouseMove, false);
+window.addEventListener('mousemove', playerRotate, false);
 window.addEventListener('mousedown', uiMouseDown, false);
+window.addEventListener('mousedown', playerShoot, false);
 window.addEventListener('resize', resizeScreen, false);
 var input = {
   up: 87, // w
@@ -55,8 +57,10 @@ function keyDown(e) {
   if(e.keyCode == input.shootProjectile)
     player.shoot();
 
-  if(e.keyCode == input.stopMovement)
+  if(e.keyCode == input.stopMovement) {
     player.vx = player.vy = 0;
+    socket.emit('move', player);
+  }
 
   if(e.keyCode == input.tab) {
     if(!HUD.miniMap.visible) HUD.miniMap.open();
@@ -91,7 +95,20 @@ function uiMouseMove(e) {
 
 }
 
+function playerShoot(e) {
+  if(!player) return;
+  player.shoot();
+}
 
+function playerRotate(e) {
+  if(!player) return;
+  var cx = go.screen.width/2;
+  var cy = go.screen.height/2;
+  var x = e.clientX - cx;
+  var y = e.clientY - cy;
+  player.rotation = Math.atan2(x, y) - Math.PI/2;
+  socket.emit('player rotation', player);
+}
 function resizeScreen(e) {
   // console.log('resize');
   // go.screen.width = 

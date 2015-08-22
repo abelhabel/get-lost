@@ -3,6 +3,7 @@ html, body {
   height: 100%;
   margin:0;
   overflow: hidden;
+  background-image: url('img/stars-background-purple.jpg');
 }
 body {
   position: relative;

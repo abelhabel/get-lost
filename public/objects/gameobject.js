@@ -87,7 +87,7 @@ function GameObject() {
     this.posx += this.vx || 0;
     this.posy += this.vy || 0;
     this.setBoundingBox();
-    
+    if(!this==go.camera)console.log(this, 'move');
     if(!workspace) var workspace = go.workspace;
     
     if(this.posx > workspace.width) {
@@ -123,7 +123,7 @@ function GameObject() {
     //   }
     // }
 
-    workspace.updateGrid(initialX, initialY, this);
+    // workspace.updateGrid(initialX, initialY, this);
   }
   
   this.cotr = "GameObject";

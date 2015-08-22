@@ -6,6 +6,7 @@ function Player(x, y, r) {
   this.posx = x;
   this.posy = y;
   this.r = r;
+  this.width = this.height = this.r * 2;
   this.checkCollision = true;
   this.currentHP = this.maxHP = 10;
   this.team = this.id;
@@ -84,12 +85,13 @@ function Player(x, y, r) {
     //   this.vx = this.vy = 0;
     //   Lightbox(planet.adventure, go.camera.width, go.camera.height);
     // } 
-    this.currentlyMining = planet;
-    planet.isMined = true;
-    planet.mineralCapacity -= this.miningSpeed;
-    planet.size -= 0.01;
-    planet.updateSize(planet.size);
-    this.minerals[planet.mineral.name] += 0.1;
+    // if(this.currentlyMining.mineralCapacity < 0) return;
+    // this.currentlyMining = planet;
+    // planet.isMined = true;
+    // planet.mineralCapacity -= this.miningSpeed;
+    // planet.size -= 0.01;
+    // planet.updateSize(planet.size);
+    // this.minerals[planet.mineral.name] += 0.1;
   }
 
   Player.prototype.move = function(workspace) {
@@ -99,6 +101,7 @@ function Player(x, y, r) {
     var shape = this;
     var initialX = this.posx;
     var initialY = this.posy;
+
     var speedX = this.vx * (this.vxl + this.vxr);
     var speedY = this.vy * (this.vyu + this.vyd);
     if(this.moveLeft && this.vx > -this.maxSpeed) {
@@ -140,14 +143,7 @@ function Player(x, y, r) {
     if( tile !== go.currentWorldTile) {
       go.timeStamp = window.performance.now()
       console.log('requesting new world tile');
-      socket.emit('get new world tile', {
-                                          xmin: this.posx - go.gridSize,
-                                          ymin: this.posy - go.gridSize,
-                                          xmax: this.posx + go.gridSize,
-                                          ymax: this.posy + go.gridSize,
-                                          posx: this.posx,
-                                          posy: this.posy
-                                        });
+      socket.emit('get new world tile', this);
       go.currentWorldTile = tile;
     }
   }

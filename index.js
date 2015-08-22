@@ -31,7 +31,31 @@ function getOtherPlayersThan(thisPlayer) {
   var arr = [];
   go.sockets.forEach(function(storedSocket) {
     if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id) {
-      arr.push(storedSocket.clientPlayer);
+      arr.push(go.playersTable[storedSocket.clientPlayer.id]);
+    }
+  });
+  return arr;
+}
+
+function broadcastNearBy(thisPlayer, topic, msg) {
+  var arr = [];
+  go.sockets.forEach(function(storedSocket) {
+    if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id && 
+      Math.abs(thisPlayer.posx - storedSocket.clientPlayer.posx) < 1600 &&
+      Math.abs(thisPlayer.posy - storedSocket.clientPlayer.posy) < 1600) {
+      storedSocket.emit(topic, msg);
+    }
+  });
+  return arr;
+}
+
+function getOtherSocketsNearBy(thisPlayer) {
+  var arr = [];
+  go.sockets.forEach(function(storedSocket) {
+    if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id && 
+      Math.abs(thisPlayer.posx - storedSocket.clientPlayer.posx) < 1600 &&
+      Math.abs(thisPlayer.posy - storedSocket.clientPlayer.posy) < 1600) {
+      arr.push(storedSocket);
     }
   });
   return arr;
@@ -54,7 +78,7 @@ io.on('connection', function(socket) {
 
   // 2. store socket
   go.sockets.push(socket);
-
+  go.playersTable[socket.clientPlayer.id] = socket.clientPlayer;
   // 3. return player
   socket.emit('new player', socket.clientPlayer);
 
@@ -80,16 +104,25 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('player shoot', msg);
   });
 
+  socket.on('player rotation', function(msg){
+    go.playersTable[msg.id].rotation = msg.rotation;
+    broadcastNearBy(msg, 'player rotation', msg);
+  })
+
   socket.on('move', function(msg) {
-    var player = msg.player;
-    player.updateCounter = Date.now();
-    go.playersTable[player.id] = player;
-    socket.broadcast.emit('player position', player);
-    // console.log(msg.player.id, Date.now() - msg.timeStamp);
-   
+    if(go.playersTable.hasOwnProperty(msg.id)){
+      go.playersTable[msg.id].posx = msg.posx;
+      go.playersTable[msg.id].posy = msg.posy;
+      broadcastNearBy(msg, 'player speed', msg);
+    }
   });
 
+  socket.on('sync position', function(msg) {
+    socket.broadcast.emit('sync position', msg)
+  })
+
   socket.on('get new world tile', function(msg) {
+
     var storedObjects = go.workspace.getGridTilesOnObject(msg);
     socket.emit('world section', storedObjects);
   });
@@ -110,11 +143,14 @@ io.on('connection', function(socket) {
   socket.on('mining', function(obj) {
     var storedObject = go.idTable[obj.id];
     if(obj && obj.cotr == 'Planet') {
-      storedObject.updateSize(obj.size);
-      storedObject.mineralCapacity = obj.mineralCapacity;
-      storedObject.minable = obj.minable;
-      storedObject.isMined = obj.isMined;
-      socket.broadcast.emit('mining', storedObject);
+      if(obj.mineralCapacity > 0) {
+        storedObject.updateSize(obj.size - 0.01);
+        storedObject.mineralCapacity -= 0.1;
+      
+        storedObject.minable = true;
+        storedObject.isMined = true;
+        io.emit('mining', storedObject);
+      }
     }
   });
 });

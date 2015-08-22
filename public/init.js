@@ -46,9 +46,23 @@ if(!go.testing) {
     go.playersTable[player.id] = player;
     startGame();
     setUI();
+    console.log('got player');
   });
   printOnce = false;
-  socket.on('player position', function(msg) {
+  socket.on('player speed', function(msg) {
+    if(go.playersTable.hasOwnProperty(msg.id)) {
+      go.playersTable[msg.id].vx = msg.vx || 0;
+      go.playersTable[msg.id].vy = msg.vy || 0;
+    }
+  });
+
+  socket.on('player rotation', function(msg) {
+    if(go.playersTable.hasOwnProperty(msg.id)) {
+      go.playersTable[msg.id].rotation = msg.rotation;
+    }
+  });
+
+  socket.on('sync position', function(msg) {
     if(go.playersTable.hasOwnProperty(msg.id)) {
       go.playersTable[msg.id].posx = msg.posx;
       go.playersTable[msg.id].posy = msg.posy;
@@ -60,7 +74,7 @@ if(!go.testing) {
     newPlayer.setBoundingBox();
     
     go.playersTable[newPlayer.id] = newPlayer;
-
+    console.log('New player connected: ' + newPlayer.id, newPlayer.vx, newPlayer.vy)
   });
 
   socket.on('add other players', function(msg) {
@@ -68,12 +82,14 @@ if(!go.testing) {
     for(key in msg) {
       newPlayer = msg[key];
       go.playersTable[newPlayer.id] = Helpers.copyKeys(new Player(), newPlayer);
+      console.log('added player: ' + newPlayer.id, newPlayer.posx, newPlayer.posy);
     }
     
   });
 
   socket.on('remove player', function(msg) {
     delete go.playersTable[msg.id];
+    console.log("Player disconnected: " + msg.id);
   });
 
   socket.on('world section', function(msg) {
@@ -104,6 +120,7 @@ if(!go.testing) {
   socket.on('mining', function(obj) {
     var storedObject = go.idTable[obj.id];
     if(storedObject && storedObject.cotr == 'Planet') {
+      player.minerals[obj.mineral.name] += 0.1;
       storedObject.updateSize(obj.size);
       storedObject.mineralCapacity = obj.mineralCapacity;
       storedObject.minable = obj.minable;
@@ -136,7 +153,19 @@ function setUI() {
 
 function positionLoop() {
   if(player.vx != 0 || player.vy != 0) {
-    socket.emit('move', {camera: go.camera, player: player, timeStamp: Date.now()});
+    socket.emit('move', player);
+  }
+  go.positionLoopTimer += 1;
+  if(go.positionLoopTimer > 100) {
+    go.positionLoopTimer = 0;
+    socket.emit('sync position', player);
+  }
+}
+
+function checkSprites() {
+  go.spritesLoaded += 1;
+  if(go.spritesLoaded == go.totalSprites) {
+    startGame();
   }
 }
 function startGame() {
@@ -144,10 +173,14 @@ function startGame() {
     testGalaxyLoad(400, 40, 200);
     objectsSync(10);
 
-  }else {
+  }else
+  if(player && player.hasOwnProperty('id') && go.spritesLoaded == go.totalSprites) {
     go.collisionTimer = setInterval(collisionLoop, 8);
     go.miningTimer = setInterval(miningLoop, 100);
-    go.positionTimer = setInterval(positionLoop, 32);
+    go.positionTimer = setInterval(positionLoop, 100);
+    //background
+    // go.bgScreen.context.drawImage(go.backgroundImage.img, 0, 0, go.bgScreen.width, go.bgScreen.height);
+    console.log('start game');
     HUD.miniMap.open();
     HUD.miniMap.close();
     go.miniMap.context.fillStyle = "#AAAAAA";

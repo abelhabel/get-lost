@@ -1,7 +1,5 @@
 var FollowPatterns = {
   circle: function(shape, angle) {
-    // if(shape.followRotation > Math.PI * 2) 
-      // shape.followRotation = shape.followRotation % (Math.PI * 2);
     shape.posx = shape.follow.posx + shape.followDistanceX * Math.cos(angle);
     shape.posy = shape.follow.posy + shape.followDistanceY * Math.sin(angle);
   },
