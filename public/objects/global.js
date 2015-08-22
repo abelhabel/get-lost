@@ -24,7 +24,7 @@ go.sprites = {
   "Cerdinol": new Sprite('planets/planet16.png'),
   "Palmonophen": new Sprite('planets/planet15.png'),
   "Alpadium": new Sprite('planets/planet12.png'),
-  "spikedShip": new Sprite('spikedShip.png')
+  "spikedShip": new Sprite('spikedship.png')
 };
 
 if(typeof module != 'undefined') module.exports = go;
