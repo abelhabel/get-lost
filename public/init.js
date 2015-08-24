@@ -32,6 +32,10 @@ function createGameObject(obj) {
     newObj = Helpers.copyKeys(new Circle(), obj);
   }
 
+  if(obj.cotr == "BlackHole") {
+    newObj = Helpers.copyKeys(new BlackHole(), obj);
+  }
+
   return newObj;
 }
 
@@ -48,11 +52,21 @@ if(!go.testing) {
     setUI();
     console.log('got player');
   });
+
+  socket.on('new world', function(msg) {
+    go.workspace = new Workspace(1e5, 1e5, go.gridSize, go.gridSize);
+
+    go.playersTable = {};
+    go.playersTable[player.id] = player;
+
+    socket.emit('get new world tile', player);
+  });
+
   printOnce = false;
   socket.on('player speed', function(msg) {
     if(go.playersTable.hasOwnProperty(msg.id)) {
-      go.playersTable[msg.id].vx = msg.vx || 0;
-      go.playersTable[msg.id].vy = msg.vy || 0;
+      go.playersTable[msg.id].vx = msg.vx;
+      go.playersTable[msg.id].vy = msg.vy;
     }
   });
 
@@ -64,6 +78,8 @@ if(!go.testing) {
 
   socket.on('sync position', function(msg) {
     if(go.playersTable.hasOwnProperty(msg.id)) {
+      go.playersTable[msg.id].vx = msg.vx;
+      go.playersTable[msg.id].vy = msg.vy;
       go.playersTable[msg.id].posx = msg.posx;
       go.playersTable[msg.id].posy = msg.posy;
     }
@@ -86,35 +102,46 @@ if(!go.testing) {
     }
     
   });
-
   socket.on('remove player', function(msg) {
     delete go.playersTable[msg.id];
     console.log("Player disconnected: " + msg.id);
   });
 
+  socket.on('add object', function(msg) {
+    go.workspace.addToGrid(createGameObject(msg));
+  })
+
+  socket.on('update object', function(msg) {
+    Helpers.copyKeys(go.idTable[msg.id], msg);
+  })
+
+  socket.on('set world id', function(worldId) {
+    player.worldId = worldId;
+  });
+
   socket.on('world section', function(msg) {
-    // var startTime = window.performance.now();
-    go.lastTime = window.performance.now() - go.timeStamp;
-    go.average = go.average || go.lastTime;
-    go.average = (go.average + go.lastTime) / 2;
     console.log('received new world tile', go.average);
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
         if(obj.cotr == "Planet") {
           go.idTable[obj.id].isMined = obj.isMined;
           go.idTable[obj.id].updateSize(obj.size);
+        }else
+        if(obj.cotr == "Guardian") {
+          go.idTable[obj.id].currentHP = obj.currentHP;
         }
         return;
       }
+      // if(shape.cotr == "Player") return;
       var shape = createGameObject(obj);
       go.idTable[shape.id] = shape;
-      go.workspace.addToGrid(shape);
+      if(shape.cotr != "Player") {
+        go.workspace.addToGrid(shape);
+      }
       if(shape.follow) {
         shape.follow = go.idTable[shape.follow.id + ""];
       }
     })
-    // var endTime = window.performance.now();
-    // console.log(endTime - startTime);
   });
 
   socket.on('mining', function(obj) {

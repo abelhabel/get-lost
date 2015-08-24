@@ -17,6 +17,8 @@ var Helpers = {
   },
 
   move: function(shape) {
+    var initialX = shape.posx;
+    var initialY = shape.posy;
     shape.posx += shape.vx || 0;
     shape.posy += shape.vy || 0;
     shape.setBoundingBox();
@@ -39,16 +41,18 @@ var Helpers = {
 
     // move if following
     
-    if(shape.follow) {
-      shape.rotation += shape.rotationSpeed;
-      shape.followRotation += shape.followRotationSpeed;
-      if(shape.followPattern) {
-        FollowPatterns[shape.followPattern](shape, shape.followRotation);
-      }else {
-        shape.posx = shape.follow.posx;
-        shape.posy = shape.follow.posy;
-      }
-    }
+    // if(shape.follow) {
+    //   shape.rotation += shape.rotationSpeed;
+    //   shape.followRotation += shape.followRotationSpeed;
+    //   if(shape.followPattern) {
+    //     FollowPatterns[shape.followPattern](shape, shape.followRotation);
+    //   }else {
+    //     shape.posx = shape.follow.posx;
+    //     shape.posy = shape.follow.posy;
+    //   }
+    // }
+    if(shape instanceof Player) return;
+    go.workspace.updateGrid(initialX, initialY, shape);
   },
   getNextId: function getNextId() {
     if(typeof(window) == 'object')  {
@@ -74,23 +78,23 @@ var Helpers = {
       + Math.random() + ")";
   },
 
-  getObjectCoordinates: function getObjectCoordinates(obj) {
+  getObjectCoordinates: function getObjectCoordinates(obj, r) {
     return [
       {
-        x: obj.xmin, 
-        y: obj.ymin
+        x: obj.posx - r, 
+        y: obj.posy - r
       },
       {
-        x: obj.xmin,
-        y: obj.ymax
+        x: obj.posx - r,
+        y: obj.posy + r
       },
       {
-        x: obj.xmax,
-        y: obj.ymin
+        x: obj.posx + r,
+        y: obj.posy - r
       },
       {
-        x: obj.xmax,
-        y: obj.ymax
+        x: obj.posx + r,
+        y: obj.posy + r
       },
       {
         x: obj.posx,
@@ -98,18 +102,18 @@ var Helpers = {
       },
       {
         x: obj.posx,
-        y: obj.ymin
+        y: obj.posy - r
       },
       {
         x: obj.posx,
-        y: obj.ymax
+        y: obj.posy + r
       },
       {
-        x: obj.xmin,
+        x: obj.posx - r,
         y: obj.posy
       },
       {
-        x: obj.xmax,
+        x: obj.posx + r,
         y: obj.posy
       }
     ];

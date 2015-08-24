@@ -59,7 +59,7 @@ function GameObject() {
   this.onDeath = function() {
     this.dead = true;
     this.checkCollision = false;
-    socket.emit('death', this);
+    socket.emit('death', {obj: this, worldId: player.worldId, player: player});
 
     // if(this.cotr != 'Projectile' && this.cotr != 'Planet') socket.emit('death', this);
   };
@@ -70,7 +70,7 @@ function GameObject() {
       this.onDeath();
     }
     if(!(this instanceof Projectile)) {
-      socket.emit('take damage', this);
+      socket.emit('take damage', {obj: this, worldId: player.worldId, damage: amount});
     }
   };
   this.handleCollision = function(obj) {
@@ -84,10 +84,9 @@ function GameObject() {
     // if(this.vx == 0 && this.vy == 0) return;
     var initialX = this.posx;
     var initialY = this.posy;
-    this.posx += this.vx || 0;
-    this.posy += this.vy || 0;
+    // this.posx += this.vx || 0;
+    // this.posy += this.vy || 0;
     this.setBoundingBox();
-    if(!this==go.camera)console.log(this, 'move');
     if(!workspace) var workspace = go.workspace;
     
     if(this.posx > workspace.width) {

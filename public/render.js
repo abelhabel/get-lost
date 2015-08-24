@@ -135,7 +135,10 @@ function draw() {
     var percent = Math.min.apply(null, [player.minerals[mineral.name], 100]) / 100;
     var h = mineral.height * percent;
     var diff = (1 - percent) * mineral.height;
+    var img = go.sprites[mineral.name].image;
     ct.fillRect(mineral.xmin, mineral.ymin + diff, mineral.width, h);
+    ct.drawImage(img, mineral.xmin, mineral.ymin, mineral.width, mineral.height);
+    // ct.fillRect(mineral.xmin, mineral.ymin + diff, mineral.width, h);
     if(player.currentlyMining && player.currentlyMining.mineral.name == mineral.name) {
       ct.setLineDash([2]);
       ct.strokeStyle = "#FFFFFF";
@@ -156,14 +159,6 @@ function draw() {
     }
     step += 1;
   });
-  // scaleX = go.uiScreen.width / 100;
-  // scaleY = go.uiScreen.height / 100;
-  // HUD.display.lines.forEach(function(line) {
-  //   ct.strokeStyle = line.strokeStyle;
-  //   ct.moveTo(line.xmin * scaleX, line.ymin * scaleY);
-  //   ct.lineTo(line.xmax * scaleX, line.ymax * scaleY);
-  //   ct.stroke();
-  // });
 
   // tab menu
   ct = go.miniMap.context;

@@ -8,7 +8,7 @@ go.uiScreen = new Screen(window.innerWidth, window.innerHeight, document.getElem
 go.miniMap = new Screen(375, 375, document.getElementById('minimap'));
 go.camera = new Camera(50000, 50000, window.innerWidth, window.innerHeight);
 go.playersScreen = new Screen(window.innerWidth, window.innerHeight, document.getElementById('players'));
-
+go.hud = new Screen(window.innerWidth, window.innerHeight, document.getElementById('hud'));
 go.speed = 3;
 go.average = 0;
 go.lastTime = 0;

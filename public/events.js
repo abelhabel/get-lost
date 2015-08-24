@@ -59,11 +59,14 @@ function keyDown(e) {
 
   if(e.keyCode == input.stopMovement) {
     player.vx = player.vy = 0;
-    socket.emit('move', player);
+    socket.emit('sync position', player);
   }
 
   if(e.keyCode == input.tab) {
-    if(!HUD.miniMap.visible) HUD.miniMap.open();
+    if(!HUD.miniMap.visible) {
+      HUD.miniMap.open();
+      HUD.display(go.uiScreen.context);
+    }
   }
 }
 function uiMouseDown(e) {

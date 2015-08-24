@@ -6,11 +6,18 @@ function BlackHole(x, y, r) {
   this.r = r || 25;
   this.size = Math.ceil(Math.random() * 5);
   this.lineThickness = 6;
-  this.r = 250;
   this.fillStyle = "#000000";
   this.strokeStyle = "#00AAAA";
-  go.workspace.addToGrid(this);
   this.cotr = "BlackHole";
+  this.checkCollision = true;
+
+  BlackHole.prototype.handleCollision = function(obj) {
+    if(this.lastCollidedWith == obj.id) return false;
+    this.lastCollidedWith = obj.id;
+    if(obj === player) {
+      socket.emit('new world', player);
+    }
+  }
 }
 
 if(typeof module != 'undefined') module.exports = BlackHole;

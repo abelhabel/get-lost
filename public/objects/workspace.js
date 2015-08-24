@@ -27,7 +27,7 @@ function Workspace(w, h, gridX, gridY) {
     return this.grid[gridX + ":" + gridY];
   };
   this.getGridTilesOnObject = function(obj) {
-    var coordinates = Helpers.getObjectCoordinates(obj);
+    var coordinates = Helpers.getObjectCoordinates(obj, this.gridSizeX/1.5);
     var arr = [];
     coordinates.forEach(function(obj) {
       var tile = ws.getGridTile(obj.x, obj.y);
@@ -37,15 +37,7 @@ function Workspace(w, h, gridX, gridY) {
     });
     return arr;
   };
-  this.getGridTilesOnObjectLoose = function(obj) {
-    var coordinates = Helpers.getObjectCoordinates(obj);
-    var arr = [];
-    coordinates.forEach(function(obj) {
-      var tile = ws.getGridTile(obj.x, obj.y);
-      arr.push.apply(arr, tile);
-    });
-    return arr;
-  };
+
   this.addToGrid = function(obj) {
     var tile = this.getGridTile(obj.posx, obj.posy);
     if(!tile) return;
@@ -61,6 +53,7 @@ function Workspace(w, h, gridX, gridY) {
   };
   this.removeFromGrid = function(obj) {
     var tile = this.getGridTile(obj.posx, obj.posy);
+    
     if(!tile) return;
     for(var i = 0; i < tile.length; i += 1) {
       if(tile[i].id == obj.id)
@@ -68,6 +61,7 @@ function Workspace(w, h, gridX, gridY) {
     }
   };
   this.updateGrid = function(x, y, obj) {
+
     var tileInitial = this.getGridTile(x, y);
     var tileNew = this.getGridTile(obj.posx, obj.posy);
     if(tileNew && tileInitial && tileInitial !== tileNew) {

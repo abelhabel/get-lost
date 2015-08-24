@@ -1,57 +1,74 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
+http.listen(process.env.PORT || 3000, function(){
+  // console.log('listening on *:3000');
+});
 var io = require('socket.io', { 
   rememberTransport: false, 
   transports: ['WebSocket', 'AJAX long-polling'] 
 })(http);
 
-http.listen(process.env.PORT || 3000, function(){
-  // console.log('listening on *:3000');
-});
-// memory leaks testing
 var go = require('world/populate.js');
-var Bosses = require("bosses/bosses.js");
-
+// var Bosses = require("bosses/bosses.js");
+var Worlds = {};
+Worlds["0"] = new go();
+Worlds["0"].id = 0;
+Worlds["0"].populateWorld();
 var Helpers = require(__dirname + "/public/helpers.js");
 var Player = require(__dirname + "/public/objects/player.js");
+var BlackHole = require(__dirname + "/public/objects/blackhole.js");
 
+function addPlayer(world, player) {
+  if(world.playersTable.hasOwnProperty(player.id)) return;
 
-function addPlayer(player) {
-  if(go.playersTable.hasOwnProperty(player.id)) return;
-
-  go.playersTable[player.id] = player;
+  world.playersTable[player.id] = player;
 }
 
 function removePlayer(player) {
-  delete go.playersTable[player.id];
+  var world, storedPlayer;
+  for(worldKey in Worlds) {
+    world = Worlds[worldKey];
+    for(playerKey in world.playersTable) {
+      storedPlayer = world.playersTable[playerKey];
+      if(storedPlayer.id = player.id) {
+        delete world.playersTable[player.id];
+      }
+    }
+  }
 }
 
 function getOtherPlayersThan(thisPlayer) {
   var arr = [];
-  go.sockets.forEach(function(storedSocket) {
-    if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id) {
-      arr.push(go.playersTable[storedSocket.clientPlayer.id]);
+  var players = Worlds[thisPlayer.worldId].playersTable;
+  for(key in players) {
+    if(thisPlayer.id != players[key].id) {
+      arr.push(players[key]);
     }
-  });
+  }
   return arr;
 }
 
-function broadcastNearBy(thisPlayer, topic, msg) {
-  var arr = [];
-  go.sockets.forEach(function(storedSocket) {
-    if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id && 
-      Math.abs(thisPlayer.posx - storedSocket.clientPlayer.posx) < 1600 &&
-      Math.abs(thisPlayer.posy - storedSocket.clientPlayer.posy) < 1600) {
-      storedSocket.emit(topic, msg);
-    }
-  });
-  return arr;
+function broadcastToWorld(thisPlayer, socket, topic, msg) {
+  var players = Worlds[thisPlayer.worldId].playersTable;
+  for(key in players) {
+    socket.broadcast.emit(topic, msg);
+  }
 }
 
-function getOtherSocketsNearBy(thisPlayer) {
+function broadcastNearBy(thisPlayer, socket, topic, msg) {
+  var players = Worlds[thisPlayer.worldId].playersTable;
+  for(key in players) {
+    if(Math.abs(thisPlayer.posx - players[key].posx) < 1600 &&
+      Math.abs(thisPlayer.posy - players[key].posy) < 1600) {
+      socket.broadcast.emit(topic, msg);
+    }
+  }
+}
+
+function getOtherSocketsNearBy(world, thisPlayer) {
   var arr = [];
-  go.sockets.forEach(function(storedSocket) {
+  world.sockets.forEach(function(storedSocket) {
     if(storedSocket.connected && storedSocket.clientPlayer.id != thisPlayer.id && 
       Math.abs(thisPlayer.posx - storedSocket.clientPlayer.posx) < 1600 &&
       Math.abs(thisPlayer.posy - storedSocket.clientPlayer.posy) < 1600) {
@@ -71,80 +88,142 @@ app.get('/public/*', function(req, res) {
 });
 
 io.on('connection', function(socket) {
+  function emitWorldTile(msg) {
+    var storedObjects = Worlds[msg.worldId].workspace.getGridTilesOnObject(msg);
+    socket.emit('world section', storedObjects);
+  }
+  function emitOtherPlayers(msg) {
+    var otherPlayers = getOtherPlayersThan(msg);
+    socket.emit('add other players', otherPlayers);
+  }
   // Initial connection of a new player
   // 1. create player
-  socket.clientPlayer = new Player(50000, 50000, 25);
-  socket.clientPlayer = socket.clientPlayer;
-
+  var player = new Player(50000, 50000, 25);
+  player.worldId = 0;
+  socket.clientPlayer = player;
   // 2. store socket
-  go.sockets.push(socket);
-  go.playersTable[socket.clientPlayer.id] = socket.clientPlayer;
+  Worlds[player.worldId].sockets.push(socket);
+  Worlds[player.worldId].playersTable[player.id] = player;
   // 3. return player
-  socket.emit('new player', socket.clientPlayer);
+  socket.emit('new player', player);
 
   // 4. broadcast player
-  socket.broadcast.emit('add player', socket.clientPlayer);
+  broadcastToWorld(player, socket, 'add player', player);
+  // socket.broadcast.emit('add player', player);
 
   // 5. return all other players
-  var otherPlayers = getOtherPlayersThan(socket.clientPlayer);
-  socket.emit('add other players', otherPlayers);
-  
+  emitOtherPlayers(player);
+  emitWorldTile(player);
+
+  socket.on('new world', function(msg) {
+    var newWorld;
+    console.log('incoming player world id:', msg.worldId);
+    broadcastToWorld(msg, socket, 'remove player', msg);
+    
+    if(Worlds.hasOwnProperty(msg.worldId + 1)) {
+      newWorld = Worlds[msg.worldId + 1];
+    }else {
+      newWorld = new go();
+      newWorld.populateWorld();
+      Worlds[Object.keys(Worlds).length] = newWorld;
+      newWorld.id = Object.keys(Worlds).length - 1;
+    }
+    msg.worldId += 1;
+    Worlds[msg.worldId].playersTable[msg.id] = msg;
+    socket.emit('set world id', msg.worldId);
+    delete Worlds[msg.worldId - 1].playersTable[msg.id];
+    Worlds[msg.worldId].sockets.push(socket);
+    
+    addPlayer(newWorld, msg); 
+    socket.emit('new world', msg);
+    emitWorldTile(msg);
+    // 4. broadcast player to world
+    broadcastToWorld(msg, socket, 'add player', msg);
+    // 5. return all other players in world
+    emitOtherPlayers(msg);
+  });
 
   console.log('a user connected' + socket.handshake.address);
   // send this player to all other already connected players
   
 
   socket.on('disconnect', function() {
-    console.log('user disconnected');
+    console.log('user disconnected', socket.clientPlayer);
     removePlayer(socket.clientPlayer);
     socket.broadcast.emit('remove player', socket.clientPlayer);
   });
 
   socket.on('player shoot', function(msg) {
-    socket.broadcast.emit('player shoot', msg);
+    broadcastNearBy(msg, socket, 'player shoot', msg);
+    // socket.broadcast.emit('player shoot', msg);
   });
 
   socket.on('player rotation', function(msg){
-    go.playersTable[msg.id].rotation = msg.rotation;
-    broadcastNearBy(msg, 'player rotation', msg);
+    if(!Worlds[msg.worldId].playersTable.hasOwnProperty(msg.id)) return;
+    Worlds[msg.worldId].playersTable[msg.id].rotation = msg.rotation;
+    broadcastNearBy(msg, socket, 'player rotation', msg);
   })
 
   socket.on('move', function(msg) {
-    if(go.playersTable.hasOwnProperty(msg.id)){
-      go.playersTable[msg.id].posx = msg.posx;
-      go.playersTable[msg.id].posy = msg.posy;
-      broadcastNearBy(msg, 'player speed', msg);
-    }
+    var player = Worlds[msg.worldId].playersTable[msg.id];
+    if(!player) return;
+    player.posx = msg.posx;
+    player.posy = msg.posy;
+    player.vx = msg.vx;
+    player.vy = msg.vy;
+    broadcastNearBy(msg, socket, 'player speed', msg);
   });
 
   socket.on('sync position', function(msg) {
-    socket.broadcast.emit('sync position', msg)
+    var player = Worlds[msg.worldId].playersTable[msg.id];
+    if(!player) return;
+    player.posx = msg.posx;
+    player.posy = msg.posy;
+    player.vx = msg.vx;
+    player.vy = msg.vy;
+    broadcastToWorld(msg, socket, 'sync position', msg);
+    // socket.broadcast.emit('sync position', msg)
   })
 
   socket.on('get new world tile', function(msg) {
 
-    var storedObjects = go.workspace.getGridTilesOnObject(msg);
-    socket.emit('world section', storedObjects);
+    emitWorldTile(msg);
+    broadcastNearBy(msg, socket, 'sync position', msg);
+    // broadcastToWorld(Worlds[socket.clientPlayer.worldId], msg, 'sync position', msg);
+    // var otherPlayers = getOtherPlayersThan(Worlds[socket.clientPlayer.worldId], socket.clientPlayer);
+    // socket.emit('add other players', otherPlayers);
   });
 
-  socket.on('take damage', function(obj) {
-    var tile = go.workspace.getGridTile(obj.posx, obj.posy);
-    var storedObject = Helpers.getObjectOnId(tile, obj.id);
-    storedObject.currentHP = obj.currentHP;
+  socket.on('take damage', function(msg) {
+    if(msg.obj.cotr == "Player") {
+      storedObject = Worlds[msg.worldId].playersTable[msg.obj.id];
+    }else {
+      storedObject = Worlds[msg.worldId].idTable[msg.obj.id];
+    }
+    if(storedObject) {
+      storedObject.currentHP -= msg.damage;
+      broadcastNearBy(msg, socket, 'update object', msg);
+    }
   });
 
-  socket.on('death', function(obj) {
-    var tile = go.workspace.getGridTile(obj.posx, obj.posy);
-    var storedObject = Helpers.getObjectOnId(tile, obj.id);
+  socket.on('death', function(msg) {
+    if(msg.obj.cotr != "Guardian") return;
+    var storedObject = Worlds[msg.worldId].idTable[msg.obj.id];
     storedObject.dead = true;
     storedObject.checkCollision = false;
+    var blackHole = new BlackHole(msg.obj.posx, msg.obj.posy, msg.obj.r);
+    Worlds[msg.worldId].idTable[blackHole.id] = blackHole;
+    Worlds[msg.worldId].workspace.addToGrid(blackHole);
+    console.log('added black hole');
+    socket.emit('add object', blackHole);
+    broadcastNearBy(msg.player, socket, 'add object', blackHole);
   });
 
-  socket.on('mining', function(obj) {
-    var storedObject = go.idTable[obj.id];
-    if(obj && obj.cotr == 'Planet') {
-      if(obj.mineralCapacity > 0) {
-        storedObject.updateSize(obj.size - 0.01);
+  socket.on('mining', function(msg) {
+    var storedObject = Worlds[msg.worldId].idTable[msg.id];
+    if(storedObject && storedObject.cotr == 'Planet') {
+      if(storedObject.mineralCapacity > 0) {
+        storedObject.updateSize(storedObject.size - 0.01);
         storedObject.mineralCapacity -= 0.1;
       
         storedObject.minable = true;

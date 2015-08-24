@@ -1,7 +1,7 @@
 Camera.prototype = new GameObject();
 Circle.prototype = new GameObject();
 Polygon.prototype = new GameObject();
-BlackHole.prototype = new GameObject();
+
 
 Player.prototype = new Polygon();
 Planet.prototype = new Circle();
@@ -10,3 +10,4 @@ Projectile.prototype = new Circle();
 Star.prototype = new Polygon();
 PolygonBoss.prototype = new Polygon();
 CircleBoss.prototype = new Circle();
+BlackHole.prototype = new Circle();
