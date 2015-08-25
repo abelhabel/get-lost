@@ -9,8 +9,10 @@ function Player(x, y, r) {
   this.width = this.height = this.r * 2;
   this.checkCollision = true;
   this.currentHP = this.maxHP = 10;
+  this.xp = 0;
   this.team = this.id;
 
+  this.inventory = [];
   this.inAdventure = false;
   this.reloading = false;
   this.projectileSpeed = 2;
@@ -29,21 +31,20 @@ function Player(x, y, r) {
     if(this.minerals[this.engineFuel] < 1 || this.reloading) return;
     socket.emit('player shoot', this);
     this.minerals[this.engineFuel] -= 1;
-    console.log(this);
     this.projectileSpeed = Minerals.minerals[this.engineFuel].projectileSpeed
     this.reloading = true;
     this.reload();
 
     var x = Math.round(this.r * Math.cos(this.rotation) * 100) / 100;
     var y = Math.round(this.r * Math.sin(this.rotation) * (-1) * 100) / 100; 
-    var proj = new Projectile(this.posx + x,
-                              this.posy + y,
+    var proj = new Projectile(go.camera.posx,
+                              go.camera.posy,
                               10,
                               this.projectileSpeed * x /10,
                               this.projectileSpeed * y / 10,
                               Minerals.minerals[this.engineFuel].color);
     proj.team = this.team;
-    proj.damage = Minerals.minerals[this.engineFuel].damage;
+    proj.damage = Minerals.minerals[this.engineFuel].projectileDamage;
     go.workspace.addToGrid(proj);
     setTimeout(function() {
       go.workspace.removeFromGrid(proj);

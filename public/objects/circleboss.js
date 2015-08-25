@@ -14,6 +14,7 @@ function CircleBoss(x, y, r, name) {
   CircleBoss.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
+      go.sounds.lasso.play();
       this.shootTimer = 0;
       var proj = new Projectile(this.posx, 
                                 this.posy, 

@@ -2,6 +2,7 @@
 <html>
 <head>
   <title></title>
+  <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="/public/style.css">
 </head>
 <body>
@@ -9,8 +10,83 @@
 <canvas id="planets"></canvas>
 <canvas id="players"></canvas>
 <canvas id="ui"></canvas>
-<canvas id="minimap" style="display: none;"></canvas>
+<div id="minimapFrame" class="circle-frame" style="display: none">
+  <canvas id="minimap" style="display: none;"></canvas>
+</div>
 <canvas id="hud" style="display: none;"></canvas>
+<div id="mainMenu">
+  <div id="startGame" class="stat-frame">Start Game</div>
+  <div id="instructions" class="stat-frame">Instructions</div>
+
+</div>
+<div id="instructionsMenu" style="display: none;">
+  <div class="stat-frame">
+      <ul> <span class="ul-title">Movement</span>
+        <li>W = Accelerate Up</li>
+        <li>S = Accelerate Down</li>
+        <li>A = Accelerate Left</li>
+        <li>D = Accelerate Right</li>
+        <li>E = Stop</li>
+      </ul>
+      <ul> <span class="ul-title">Shooting</span>
+        <li>K or LMB = Shoot</li>
+        <li>Move Mouse = Shoot Direction</li>
+      </ul>
+      <ul> <span class="ul-title">HUD/Minimap</span>
+        <li>Hold Q to open</li>
+        <li>Release Q to close</li>
+      </ul>
+      <ul> <span class="ul-title">Mining</span>
+        <li>Be close to or over a planet to start mining minerals from it. The minerals you mine will be added to your pool of minerals.</li>
+      </ul>
+      <ul> <span class="ul-title">Black Holes</span>
+        <li>Killing a boss will generate a black hole. Enter it to go into a new world</li>
+      </ul>
+  </div>
+</div>
+<div id="uiFrame" style="display: none;">
+
+
+  <div class="left vertical-middle square perspective-left">
+    <div class="stat-frame stat-title"><span>Engine</span></div>
+    <div class="stat-frame"><span>Max Speed</span><span id="maxSpeed" class="float-right yellow-text"></span></div>
+    <div class="stat-frame"><span>Acceleration</span><span id="acceleration" class="float-right yellow-text"></span></div>
+    <div class="stat-frame"><span>Fuel Effeciency</span><span id="fuelEfficiency" class="float-right yellow-text"></span></div>
+    <div class="stat-frame stat-title"><span>Ammunition</span></div>
+    <div class="stat-frame"><span>Speed</span><span id="projectileSpeed" class="float-right yellow-text"></span></div>
+    <div class="stat-frame"><span>Reload</span><span id="reloadTime" class="float-right yellow-text"></span></div>
+    <div class="stat-frame"><span>Damage</span><span id="projectileDamage" class="float-right yellow-text"></span></div>
+    <div class="stat-frame"><span>XP</span><span id="xp" class="float-right yellow-text"></span></div>
+    <div class="stat-frame"><span>HP</span><span id="hp" class="float-right yellow-text"></span></div>
+  </div>
+  <div class="left vertical-middle square perspective-right">
+    <div class="stat-frame stat-title"><span>Minerals</span></div>
+    <div class="stat-frame" data-mineral='Cermonophen'><span>Cermonophen</span><span id="Cermonophen" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Koldium'><span>Koldium</span><span id="Koldium" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Magtrium'><span>Magtrium</span><span id="Magtrium" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Bredide'><span>Bredide</span><span id="Bredide" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Soltriphen'><span>Soltriphen</span><span id="Soltriphen" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Oxapetaphen'><span>Oxapetaphen</span><span id="Oxapetaphen" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Cerdinol'><span>Cerdinol</span><span id="Cerdinol" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Palmonophen'><span>Palmonophen</span><span id="Palmonophen" class="float-left yellow-text"></span></div>
+    <div class="stat-frame" data-mineral='Alpadium'><span>Alpadium</span><span id="Alpadium" class="float-left yellow-text"></span></div>
+  </div>
+  <div id="nowPlaying" class="stat-frame yellow-text" data-tooltip="Click to find another song in space."></div>
+
+</div>
+<div id="playerContainer">
+  <div id="player"></div>
+
+</div>
+<div id="adventureFrame" style="display: none;">
+  <div id="sceneDescription"></div>
+  <div id="feedback"></div>
+  <div id="input" contenteditable='true'></div>
+</div>
+
+<div id="console" contenteditable='true' style="display:none"></div>
+<div id="adventureNotification" class="stat-frame yellow-text" style="display: none;"></div>
+<div id="toolTip" class="stat-frame" style="display: none;"></div>
 <script src="https://cdn.socket.io/socket.io-1.3.6.js"></script>
 <script>
   var socket = io();
@@ -19,7 +95,9 @@
 </body>
 <script src="/public/globalobject.js"></script>
 <script src="/public/helpers.js"></script>
+<script src="/public/console.js"></script>
 <script src="/public/followpatterns.js"></script>
+<script src="/public/movementpatterns.js"></script>
 <script src="/public/generateworld.js"></script>
 <script src="/public/minerals.js"></script>
 <script src="/public/collision.js"></script>
@@ -37,9 +115,11 @@
 <script src="/public/objects/blackhole.js"></script>
 <script src="/public/objects/star.js"></script>
 <script src="/public/objects/guardian.js"></script>
+<script src="/public/objects/hunter.js"></script>
 <script src="/public/objects/polygonboss.js"></script>
 <script src="/public/objects/circleboss.js"></script>
 <script src="/public/objects/sprite.js"></script>
+<script src="/public/objects/sound.js"></script>
 <script src="/public/objects/background.js"></script>
 <script src="/public/objects/player.js"></script>
 <script src="/public/ui/ui.js"></script>
@@ -50,6 +130,8 @@
 <script src="/public/ui/hud.js"></script>
 <script src="/public/render.js"></script>
 <script src="/public/events.js"></script>
+<script src="/public/adventure/parse.js"></script>
+<script src="/public/adventure/startadventure.js"></script>
 <script src="/public/lightbox.js"></script>
 <script src="/public/testing.js"></script>
 <script src="/public/init.js"></script>

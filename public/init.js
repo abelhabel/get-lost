@@ -36,6 +36,13 @@ function createGameObject(obj) {
     newObj = Helpers.copyKeys(new BlackHole(), obj);
   }
 
+  if(obj.cotr == "Hunter") {
+    newObj = Helpers.copyKeys(new Hunter(), obj);
+    console.log("hunter added", newObj.posx, newObj.posy);
+    newObj.ox = go.camera.xmin;
+    newObj.oy = go.camera.ymin;
+  }
+
   return newObj;
 }
 
@@ -48,7 +55,6 @@ if(!go.testing) {
     go.currentWorldTile = go.workspace.getGridTile(player.posx, player.posy);
     player.setEngineFuel("Cermonophen");
     go.playersTable[player.id] = player;
-    startGame();
     setUI();
     console.log('got player');
   });
@@ -120,7 +126,6 @@ if(!go.testing) {
   });
 
   socket.on('world section', function(msg) {
-    console.log('received new world tile', go.average);
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
         if(obj.cotr == "Planet") {
@@ -153,6 +158,24 @@ if(!go.testing) {
       storedObject.minable = obj.minable;
       storedObject.isMined = obj.isMined;
     }
+  });
+
+  socket.on('adventure', function(msg) {
+    go.sounds.scan.play();
+    go.currentAdventure = JSON.parse(msg);
+    go.an.planet = player.currentlyMining;
+    setTimeout(function() {
+      go.sounds.scan.stop();
+      if(!player.currentlyMining && player.currentlyMining != go.an.planet) return;
+      
+      go.an.style.display = "block";
+      go.an.style.top = "100px";
+      go.an.style.right = "300px";
+      go.an.textContent = "You found something on " + go.an.planet.name + ". Click to explore.";
+      
+      go.an.addEventListener('mousedown', startAdventure, false);
+    }, 3000 + Math.ceil(Math.random() * 4000));
+    console.log(JSON.parse(msg));
   });
 
   socket.on('player shoot', function(msg) {
@@ -192,10 +215,14 @@ function positionLoop() {
 function checkSprites() {
   go.spritesLoaded += 1;
   if(go.spritesLoaded == go.totalSprites) {
-    startGame();
+    // startGame();
   }
 }
+function checkSounds() {
+  go.soundsLoaded += 1;
+}
 function startGame() {
+  console.log(go.spritesLoaded, go.totalSprites, go.soundsLoaded, go.totalSounds);
   if(go.testing) {
     testGalaxyLoad(400, 40, 200);
     objectsSync(10);
@@ -205,13 +232,12 @@ function startGame() {
     go.collisionTimer = setInterval(collisionLoop, 8);
     go.miningTimer = setInterval(miningLoop, 100);
     go.positionTimer = setInterval(positionLoop, 100);
-    //background
-    // go.bgScreen.context.drawImage(go.backgroundImage.img, 0, 0, go.bgScreen.width, go.bgScreen.height);
+    go.mainMenu.style.display = "none";
     console.log('start game');
     HUD.miniMap.open();
     HUD.miniMap.close();
     go.miniMap.context.fillStyle = "#AAAAAA";
-    go.miniMap.context.fillRect(0, 0, HUD.miniMap.width, HUD.miniMap.height);
     draw();
+    go.sounds.intro.play();
   }
 }

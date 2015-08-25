@@ -2,6 +2,9 @@ var HUD = {
   scaleX: go.uiScreen.width / 100,
   scaleY: go.uiScreen.height / 100,
   display: function(ct){
+    ct.clearRect(0,0, window.innerWidth, window.innerHeight);
+    HUD.scaleX = window.innerWidth / 100;
+    HUD.scaleY = window.innerHeight / 100;
     HUD.lines.forEach(function(line) {
       ct.strokeStyle = line.strokeStyle;
       ct.moveTo(line.xmin * HUD.scaleX, line.ymin * HUD.scaleY);
@@ -46,23 +49,41 @@ var HUD = {
       });
 
     },
+    drawStats: function() {
+      for(key in go.stats) {
+        if(player.hasOwnProperty(key))
+          go.stats[key].textContent = player[key];
+
+        if(player.minerals.hasOwnProperty(key))
+          go.stats[key].textContent = parseInt(player.minerals[key]);
+
+        if(Minerals.minerals[player.engineFuel].hasOwnProperty(key))
+          go.stats[key].textContent = Minerals.minerals[player.engineFuel][key];
+      }
+    },
     open: function() {
       this.width = go.miniMap.canvas.width;
       this.height = go.miniMap.canvas.height;
       this.xmin = window.innerWidth/2 - this.width/2;
       this.ymin = window.innerHeight/2 - this.height/2;
-      go.miniMap.canvas.style.marginLeft = this.xmin + "px";
-      go.miniMap.canvas.style.marginTop = this.ymin + "px";
+      // go.miniMap.canvas.style.marginLeft = this.xmin + "px";
+      // go.miniMap.canvas.style.marginTop = this.ymin + "px";
       go.miniMap.canvas.style.display = "block";
       this.visible = true;
       console.log('open tab menu');
       this.drawGrid(go.miniMap.context);
+      this.drawStats();
       go.hud.canvas.style.display = "block";
-      HUD.display(go.hud.context);
+      go.hudHTML.style.display = "block";
+      go.minimapFrame.style.display = "block";
+      // HUD.display(go.hud.context);
+
     },
     close: function() {
       go.miniMap.canvas.style.display = "none";
       go.hud.canvas.style.display = "none";
+      go.hudHTML.style.display = "none";
+      go.minimapFrame.style.display = "none";
       this.visible = false;
       console.log('close tab menu');
     },

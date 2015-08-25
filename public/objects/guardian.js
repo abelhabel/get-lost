@@ -22,6 +22,7 @@ function Guardian(x, y, planet) {
   Guardian.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
+      go.sounds.guardianShoot.play();
       this.shootTimer = 0;
       for(var i = 0; i < this.points; i += 1) {
         var x = this.r * Math.cos(i * this.radian + this.rotation);
@@ -44,7 +45,7 @@ function Guardian(x, y, planet) {
   };
   this.projectileSpeed = 1;
   this.shootTimer = 0;
-  this.reloadSpeed = 3 * 60;
+  this.reloadSpeed = Math.ceil(Math.random() * 6) * 30;
   this.lineThickness = 8;
   this.fill = true;
   this.stroke = true;

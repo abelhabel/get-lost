@@ -19,6 +19,7 @@ function draw() {
 
   var render = {
     Polygon: function renderPolygon(shape, ct) {
+      if(shape === player) return;
       ct.setLineDash([]);
       if(shape.playAnimation)
         shape.playAnimation();
@@ -45,7 +46,7 @@ function draw() {
         }
       }
       // ct.stroke();
-      // ct.closePath();
+      ct.closePath();
       if(shape.fill){
         ct.fillStyle = shape.fillStyle;
         ct.fill();
@@ -94,6 +95,18 @@ function draw() {
   var ct = go.screen.context;
   go.camera.move();
   player.move();
+  var baseOffset = 400;
+  var offsetX = (baseOffset) * player.posx / go.workspace.width;
+  var offsetY = (baseOffset) * player.posy / go.workspace.height;
+  go.renderPosX = offsetX;
+  go.renderPosY = offsetY;
+  go.bgScreen.context.drawImage(go.sprites.purpleSpace.image, 
+                                -offsetX/2, 
+                                -offsetY/2, 
+                                window.innerWidth + baseOffset/2, 
+                                window.innerHeight + baseOffset/2);
+  
+  // go.body.style.backgroundPosition = go.renderPosX + "px " + go.renderPosY + "px, center" ;  
   ct.clearRect(0, 0, go.screen.width, go.screen.height);
   ct.fillStyle = go.workspace.backgroundColor;
   // ct.fillRect(0, 0, go.screen.width, go.screen.height);
@@ -103,6 +116,7 @@ function draw() {
   // Camere Offset
   var ox = go.camera.xmin;
   var oy = go.camera.ymin;
+
   shapes.forEach(function(shape) {
     renderShape(shape, go.screen.context);
 

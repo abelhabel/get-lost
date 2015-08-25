@@ -59,13 +59,17 @@ function GameObject() {
   this.onDeath = function() {
     this.dead = true;
     this.checkCollision = false;
-    socket.emit('death', {obj: this, worldId: player.worldId, player: player});
+    if(this.cotr != 'Projectile') {
+      player.xp += this.xp || this.maxHP || 1;
+      socket.emit('death', {obj: this, worldId: player.worldId, player: player});
+    }
 
     // if(this.cotr != 'Projectile' && this.cotr != 'Planet') socket.emit('death', this);
   };
 
   this.takeDamage = function(amount) {
     this.currentHP -= amount;
+    playSoundEffect(this, 'Hit');
     if(this.currentHP <= 0) {
       this.onDeath();
     }

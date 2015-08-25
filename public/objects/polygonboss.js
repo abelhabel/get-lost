@@ -14,6 +14,7 @@ function PolygonBoss(x, y, r, name) {
   PolygonBoss.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
+      if(Math.random() > 0.6) go.sounds.boss1.play();
       this.shootTimer = 0;
       var proj = new Projectile(this.posx, 
                                 this.posy, 

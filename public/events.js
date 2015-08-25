@@ -4,8 +4,26 @@ window.addEventListener('keyup', keyUp, false);
 window.addEventListener('mousemove', uiMouseMove, false);
 window.addEventListener('mousemove', playerRotate, false);
 window.addEventListener('mousedown', uiMouseDown, false);
-window.addEventListener('mousedown', playerShoot, false);
+// window.addEventListener('mousedown', playerShoot, false);
 window.addEventListener('resize', resizeScreen, false);
+document.getElementById('startGame').addEventListener('mousedown', function(){startGame()}, false);
+document.getElementById('instructions').addEventListener('mousedown', function(){showInstructions()}, false);
+go.menuItems = document.getElementsByClassName('stat-frame');
+for(var i = 0, l = go.menuItems.length; i < l; i += 1) {
+  go.menuItems[i].addEventListener('mouseover', function(){playSound(go.sounds.menuHover)}, false);
+  var mineralName = go.menuItems[i].getAttribute('data-mineral');
+  if(mineralName) {
+    console.log(mineralName);
+    go.menuItems[i].addEventListener('mousedown', function() {
+        player.setEngineFuel(this.getAttribute('data-mineral'));
+        HUD.miniMap.drawStats();
+    }, false);
+  }
+}
+go.an.addEventListener('mousedown', function(){this.style.display = "none"}, false);
+go.nowPlaying.addEventListener('mouseover', toolTip, false);
+go.nowPlaying.addEventListener('mouseout', toolTip, false);
+go.nowPlaying.addEventListener('mousedown', playNextSong, false);
 var input = {
   up: 87, // w
   down: 83, // s
@@ -13,13 +31,14 @@ var input = {
   right: 68, // d
   shootProjectile: 75, // k
   stopMovement: 69,
-  tab: 81 // q
+  tab: 81, // q,
+  esc: 27, //27
+  console: 67
 };
 function keyUp(e) {
+  if(go.mode == 'adventure') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
-    if(!player.drainFuel())
-      return;
-    
+
     if(e.keyCode == input.left)
       player.moveLeft = false;
 
@@ -38,8 +57,12 @@ function keyUp(e) {
   }
 }
 function keyDown(e) {
+  if(e.keyCode == input.console && e.ctrlKey) {
+    openConsole();
+  }
+  if(go.mode == 'adventure') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
-    if(!player.drainFuel())
+    if(!player.drainFuel()) 
       return;
     
     if(e.keyCode == input.left)
@@ -59,6 +82,8 @@ function keyDown(e) {
 
   if(e.keyCode == input.stopMovement) {
     player.vx = player.vy = 0;
+    player.moveRight = player.moveLeft =
+    player.moveUp = player.moveDown = false;
     socket.emit('sync position', player);
   }
 
@@ -68,18 +93,38 @@ function keyDown(e) {
       HUD.display(go.uiScreen.context);
     }
   }
+
+  if(e.keyCode == input.esc) {
+    if(go.mainMenu.style.display == "none"){
+      go.mainMenu.style.display = "block";
+
+    }else {
+      go.mainMenu.style.display = "none";
+      go.instructionsMenu.style.display = "none";
+    }
+  }
+
+  
+}
+
+function setMineral() {
+
 }
 function uiMouseDown(e) {
+  if(go.mode == 'adventure') return;
   var arr = go.ui.minerals;
-
+  var onUI = false;
   arr.forEach(function(element){
     if(element.mouseObject && isPointInObject(e.x, e.y, element)) {
       element.mouseObject.mouseDown = true;
       player.setEngineFuel(element.name);
+      onUI = true;
     }
   });
+  if(!onUI) player.shoot();
 }
 function uiMouseMove(e) {
+  if(go.mode == 'adventure') return;
   var arr = go.ui.minerals;
 
   // mouse over
@@ -99,6 +144,7 @@ function uiMouseMove(e) {
 }
 
 function playerShoot(e) {
+  if(go.mode == 'adventure') return;
   if(!player) return;
   player.shoot();
 }
@@ -110,24 +156,73 @@ function playerRotate(e) {
   var x = e.clientX - cx;
   var y = e.clientY - cy;
   player.rotation = Math.atan2(x, y) - Math.PI/2;
+  var divRotation = Math.PI * 2.5 - player.rotation;
+  go.playerDiv.style.transform = "rotate(" + divRotation + "rad)";
+  // go.playerDiv.style.left = player.xmin - go.camera.xmin + "px";
+  // go.playerDiv.style.top = player.ymin - go.camera.ymin + "px";
   socket.emit('player rotation', player);
 }
 function resizeScreen(e) {
-  // console.log('resize');
-  // go.screen.width = 
-  // go.uiScreen.width = 
-  // go.playerScreen.width = 
-  // go.camera.width = e.width;
+  
+  go.screen.width = 
+  go.uiScreen.width = 
+  go.playersScreen.width = 
+  go.camera.width = 
+  go.screen.canvas.width = 
+  go.uiScreen.canvas.width = 
+  go.playersScreen.canvas.width = window.innerWidth;
 
-  // go.screen.height = 
-  // go.uiScreen.height = 
-  // go.playerScreen.height = 
-  // go.camera.height = e.height;
+  go.screen.height = 
+  go.uiScreen.height = 
+  go.playersScreen.height = 
+  go.camera.height = 
+  go.screen.canvas.height = 
+  go.uiScreen.canvas.height = 
+  go.playersScreen.canvas.height = window.innerHeight;
+
+
+  go.uiScreen.context = go.uiScreen.canvas.getContext('2d');
 }
 
+function showInstructions() {
+  console.log('show hide');
+  if(go.instructionsMenu.style.display == "none") {
+    go.instructionsMenu.style.display = "block";
+  }else {
+    go.instructionsMenu.style.display = "none";
+  }
+}
 
+function playSound(sound) {
+  sound.play();
+}
 
+function playSoundEffect(who, type) {
+  var soundName = who.cotr.toLowerCase() + type;
+  if(go.sounds.hasOwnProperty(soundName))
+    go.sounds[soundName].play();
+}
 
+function playNextSong() {
+  go.radio.tracks[go.radio.currentTrack].audio.pause();
+  go.radio.tracks[go.radio.currentTrack].audio.currentTime = 0;
+  go.radio.currentTrack = Math.floor(Math.random() * go.radio.tracks.length);
+  if(go.radio.currentTrack > go.radio.tracks.length - 1) {
+    go.radio.currentTrack = 0;
+  }
+  go.radio.tracks[go.radio.currentTrack].play();
+
+}
+function toolTip(e) {
+  if(e.type == 'mouseover') {
+    go.toolTip.style.display = 'block';
+    go.toolTip.textContent = this.getAttribute('data-tooltip');
+    go.toolTip.style.left = e.x + "px";
+    go.toolTip.style.top = e.y + "px";
+  }else {
+    go.toolTip.style.display = 'none';
+  }
+}
 
 
 

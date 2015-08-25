@@ -1,13 +1,15 @@
+var fs = require('fs');
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
-http.listen(process.env.PORT || 3000, function(){
+var http = require('http');
+var server = http.Server(app);
+server.listen(process.env.PORT || 3000, function(){
   // console.log('listening on *:3000');
 });
 var io = require('socket.io', { 
   rememberTransport: false, 
   transports: ['WebSocket', 'AJAX long-polling'] 
-})(http);
+})(server);
 
 var go = require('world/populate.js');
 // var Bosses = require("bosses/bosses.js");
@@ -18,7 +20,8 @@ Worlds["0"].populateWorld();
 var Helpers = require(__dirname + "/public/helpers.js");
 var Player = require(__dirname + "/public/objects/player.js");
 var BlackHole = require(__dirname + "/public/objects/blackhole.js");
-
+var Hunter = require(__dirname + "/public/objects/hunter.js");
+var MovementPatterns = require(__dirname + "/public/movementpatterns.js");
 function addPlayer(world, player) {
   if(world.playersTable.hasOwnProperty(player.id)) return;
 
@@ -31,7 +34,7 @@ function removePlayer(player) {
     world = Worlds[worldKey];
     for(playerKey in world.playersTable) {
       storedPlayer = world.playersTable[playerKey];
-      if(storedPlayer.id = player.id) {
+      if(storedPlayer.id == player.id) {
         delete world.playersTable[player.id];
       }
     }
@@ -52,7 +55,8 @@ function getOtherPlayersThan(thisPlayer) {
 function broadcastToWorld(thisPlayer, socket, topic, msg) {
   var players = Worlds[thisPlayer.worldId].playersTable;
   for(key in players) {
-    socket.broadcast.emit(topic, msg);
+    if(players[key].socketId != thisPlayer.socketId)
+      socket.broadcast.to(players[key].socketId).emit(topic, msg);
   }
 }
 
@@ -60,8 +64,9 @@ function broadcastNearBy(thisPlayer, socket, topic, msg) {
   var players = Worlds[thisPlayer.worldId].playersTable;
   for(key in players) {
     if(Math.abs(thisPlayer.posx - players[key].posx) < 1600 &&
-      Math.abs(thisPlayer.posy - players[key].posy) < 1600) {
-      socket.broadcast.emit(topic, msg);
+      Math.abs(thisPlayer.posy - players[key].posy) < 1600 &&
+      players[key].socketId != thisPlayer.socketId) {
+      socket.broadcast.to(players[key].socketId).emit(topic, msg);
     }
   }
 }
@@ -99,6 +104,7 @@ io.on('connection', function(socket) {
   // Initial connection of a new player
   // 1. create player
   var player = new Player(50000, 50000, 25);
+  player.socketId = socket.id;
   player.worldId = 0;
   socket.clientPlayer = player;
   // 2. store socket
@@ -148,7 +154,7 @@ io.on('connection', function(socket) {
   
 
   socket.on('disconnect', function() {
-    console.log('user disconnected', socket.clientPlayer);
+    console.log('user disconnected');
     removePlayer(socket.clientPlayer);
     socket.broadcast.emit('remove player', socket.clientPlayer);
   });
@@ -207,19 +213,22 @@ io.on('connection', function(socket) {
   });
 
   socket.on('death', function(msg) {
-    if(msg.obj.cotr != "Guardian") return;
     var storedObject = Worlds[msg.worldId].idTable[msg.obj.id];
+    if(!storedObject) return;
     storedObject.dead = true;
     storedObject.checkCollision = false;
-    var blackHole = new BlackHole(msg.obj.posx, msg.obj.posy, msg.obj.r);
-    Worlds[msg.worldId].idTable[blackHole.id] = blackHole;
-    Worlds[msg.worldId].workspace.addToGrid(blackHole);
-    console.log('added black hole');
-    socket.emit('add object', blackHole);
-    broadcastNearBy(msg.player, socket, 'add object', blackHole);
+    if(storedObject.cotr == "CircleBoss" || storedObject.cotr == "PolygonBoss") {
+      var blackHole = new BlackHole(msg.obj.posx, msg.obj.posy, msg.obj.r);
+      Worlds[msg.worldId].idTable[blackHole.id] = blackHole;
+      Worlds[msg.worldId].workspace.addToGrid(blackHole);
+      console.log('added black hole');
+      socket.emit('add object', blackHole);
+      broadcastNearBy(msg.player, socket, 'add object', blackHole);
+    }
   });
 
   socket.on('mining', function(msg) {
+
     var storedObject = Worlds[msg.worldId].idTable[msg.id];
     if(storedObject && storedObject.cotr == 'Planet') {
       if(storedObject.mineralCapacity > 0) {
@@ -228,7 +237,28 @@ io.on('connection', function(socket) {
       
         storedObject.minable = true;
         storedObject.isMined = true;
+        if(storedObject.mineralCapacity <= 0) {
+          storedObject.minable = false;
+        }
+        
         io.emit('mining', storedObject);
+        if(!storedObject.hunterReleased) {
+          storedObject.hunterReleased = true;
+          var keys = Object.keys(MovementPatterns);
+          var hunter = new Hunter(storedObject.posx, storedObject.posy - 300, 25, MovementPatterns[ keys[Math.floor(Math.random() * keys.length) ]]);
+          // Worlds[msg.worldId].workspace.addToGrid(hunter);
+          socket.emit('add object', hunter);
+        }
+
+        if(Math.random() > 0.1 && !storedObject.hasAdventure) {
+          storedObject.hasAdventure = true;
+
+          fs.readFile(__dirname + "/data/adventures/corpse.json", function(err, data) {
+            socket.emit('adventure', data.toString());
+          });
+          
+
+        }
       }
     }
   });
