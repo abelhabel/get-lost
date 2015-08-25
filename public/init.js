@@ -212,12 +212,7 @@ function positionLoop() {
   }
 }
 
-function checkSprites() {
-  go.spritesLoaded += 1;
-  if(go.spritesLoaded == go.totalSprites) {
-    // startGame();
-  }
-}
+
 function checkSounds() {
   go.soundsLoaded += 1;
 }

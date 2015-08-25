@@ -6,3 +6,10 @@ function Sprite(src) {
   };
   go.totalSprites += 1;
 }
+
+function checkSprites() {
+  go.spritesLoaded += 1;
+  if(go.spritesLoaded == go.totalSprites) {
+    // startGame();
+  }
+}
