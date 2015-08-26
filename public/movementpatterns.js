@@ -1,22 +1,23 @@
 function bezierPattern(pos) {
-  this.t += this.speed / 500;
-  var i = 0;
-  var a = (1 - this.t);
-  var b = this.t;
-  var finalX = Math.round(pos[0][0] * (a * a) + pos[1][0] * (2 * a * b) + pos[2][0] * (b * b));
-  var finalY = Math.round(pos[0][1] * (a * a) + pos[1][1] * (2 * a * b) + pos[2][1] * (b * b));
-  this.posx = this.ox + finalX;
-  this.posy = this.oy + finalY;
-  if(this.t > 0.99) {
-    this.movementStage += 1;
-    this.t = 0;
-    if(this.movementStage == this.movementPattern.length) {
-      //  removeFromArray(this, go.ships);
-      // this.destroySelf();
-      go.workspace.removeFromGrid(this);
+  if(this instanceof Object && pos instanceof Array) {
+    this.t += this.speed / 500;
+    var i = 0;
+    var a = (1 - this.t);
+    var b = this.t;
+    var finalX = Math.round(pos[0][0] * (a * a) + pos[1][0] * (2 * a * b) + pos[2][0] * (b * b));
+    var finalY = Math.round(pos[0][1] * (a * a) + pos[1][1] * (2 * a * b) + pos[2][1] * (b * b));
+    this.posx = this.ox + finalX;
+    this.posy = this.oy + finalY;
+    if(this.t > 0.99) {
+      this.movementStage += 1;
+      this.t = 0;
+      if(this.movementStage == this.movementPattern.length) {
+        //  removeFromArray(this, go.ships);
+        // this.destroySelf();
+        go.workspace.removeFromGrid(this);
+      }
     }
   }
-  return {x: finalX, y: finalY};
 }
 var MovementPatterns = {
     left: [[[15,494],[310,128],[632,427]], [[632,427],[949,150],[1200,509]]],

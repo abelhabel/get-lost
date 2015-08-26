@@ -60,27 +60,44 @@ function GameObject() {
     this.dead = true;
     this.checkCollision = false;
     if(this.cotr != 'Projectile') {
-      player.xp += this.xp || this.maxHP || 1;
-      socket.emit('death', {obj: this, worldId: player.worldId, player: player});
+      socket.emit('death', this);
     }
 
     // if(this.cotr != 'Projectile' && this.cotr != 'Planet') socket.emit('death', this);
   };
 
-  this.takeDamage = function(amount) {
-    this.currentHP -= amount;
-    playSoundEffect(this, 'Hit');
-    if(this.currentHP <= 0) {
-      this.onDeath();
-    }
-    if(!(this instanceof Projectile)) {
-      socket.emit('take damage', {obj: this, worldId: player.worldId, damage: amount});
+  this.takeDamage = function(amount, attacker) {
+    // this.currentHP -= amount;
+    // this.currentHP = Math.round(this.currentHP * 10) / 10;
+    // playSoundEffect(this, 'Hit');
+    // if(this.currentHP <= 0) {
+    //   this.onDeath();
+    // }
+    console.log(attacker.id + " attacks " + this.id);
+    if(this instanceof Projectile) {
+      go.workspace.removeFromGrid(this);
+      delete go.idTable[this.id];
+    }else
+      // only emit to server if it is this client's
+      // player
+    if(!Helpers.isOtherPlayerTeam(attacker, player.team)) {
+      if(attacker instanceof Projectile) {
+        console.log('projectile damage', attacker.damage);
+        if(attacker.team == player.team) {
+          attacker = player;
+        }else {
+          attacker = go.idTable[attacker.team];
+        }
+      }
+      console.log("recalculated attacker: " + attacker.id + " attacks " + this.id);
+      socket.emit('take damage', {attacker: attacker, defender: this, damage: amount});
     }
   };
   this.handleCollision = function(obj) {
     if(this.lastCollidedWith == obj.id) return false;
+    playSoundEffect(this, 'Hit');
     this.lastCollidedWith = obj.id;
-    this.takeDamage(obj.damage || 0);
+    this.takeDamage(obj.damage || 0, obj);
     var shape = this;
     setTimeout(function(){shape.lastCollidedWith = null}, 500);
   };

@@ -2,7 +2,7 @@ function Sound(src, loop, type, name) {
   this.name = name;
   this.audio = new Audio();
   this.audio.preload = "none";
-  this.audio.src = "http://www.prepressed.se/music/" + src;
+  this.audio.src = window.location.protocol +"//www.prepressed.se/music/" + src;
   this.audio.autoPlay = false;
   this.audio.loop = loop || false;
   this.type = type || 'effect';

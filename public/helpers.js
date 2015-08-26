@@ -9,11 +9,13 @@ var Helpers = {
   },
 
   copyKeys: function(to, from) {
-    var keys = Object.keys(from);
-    keys.forEach(function(key) {
-      to[key] = from[key];
-    });
-    return to;
+    if(to && from) {
+      var keys = Object.keys(from);
+      keys.forEach(function(key) {
+        to[key] = from[key];
+      });
+      return to;
+    }
   },
 
   move: function(shape) {
@@ -160,7 +162,35 @@ var Helpers = {
       }
     }
     return false;
+  },
+
+  isOtherPlayerTeam: function(obj, excludeTeam) {
+    var output = false;
+
+    for(key in go.playersTable) {
+      if(go.playersTable[key].team != excludeTeam) {
+
+        if(obj.team == go.playersTable[key].team) {
+          output = true;
+        }
+
+      }
+    }
+    return output;
+  },
+
+  updateProperty: function(who, key, value) {
+    if(who.cotr == "Player") {
+      if(go.playersTable.hasOwnProperty(who.id)){
+        go.playersTable[who.id][key] = value;
+      }
+    }else {
+      if(go.idTable.hasOwnProperty(who.id)) {
+        go.idTable[who.id][key] = value;
+      }
+    }
   }
+  
 }
 
 if(typeof module != 'undefined') module.exports = Helpers;

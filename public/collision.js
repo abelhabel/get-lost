@@ -25,7 +25,7 @@ function collisionLoop() {
   // collision methods:
   // c = circle
   // s = square
-  var shapes = go.workspace.getGridTilesOnObject(go.camera);
+  var shapes = go.workspace.getGridTilesOnObject(go.camera).slice();
   for(key in go.playersTable) {
     shapes.push(go.playersTable[key]);
   }
@@ -34,7 +34,7 @@ function collisionLoop() {
     s1 = shapes[i];
     for(var j = 0; j < shapes.length; j += 1) {
       s2 = shapes[j];
-      if(s1 && s2 && s1.id != s2.id && (s1.checkCollision && s2.checkCollision) && s1.team != s2.team && s1.lastCollidedWith != s2){
+      if(s1 && s2 && s1.id != s2.id && (s1.checkCollision && s2.checkCollision) && s1.team != s2.team && s1.lastCollidedWith != s2 && !s1.dead && !s2.dead){
         if(intersectCircle(s1, s2)) {
           s1.handleCollision(s2);
           s2.handleCollision(s1);

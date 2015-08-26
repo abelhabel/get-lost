@@ -37,8 +37,8 @@ function Player(x, y, r) {
 
     var x = Math.round(this.r * Math.cos(this.rotation) * 100) / 100;
     var y = Math.round(this.r * Math.sin(this.rotation) * (-1) * 100) / 100; 
-    var proj = new Projectile(go.camera.posx,
-                              go.camera.posy,
+    var proj = new Projectile(this.posx,
+                              this.posy,
                               10,
                               this.projectileSpeed * x /10,
                               this.projectileSpeed * y / 10,

@@ -82,6 +82,10 @@ if(!go.testing) {
     }
   });
 
+  socket.on('get players', function(msg) {
+    console.log(msg);
+  });
+
   socket.on('sync position', function(msg) {
     if(go.playersTable.hasOwnProperty(msg.id)) {
       go.playersTable[msg.id].vx = msg.vx;
@@ -114,12 +118,35 @@ if(!go.testing) {
   });
 
   socket.on('add object', function(msg) {
-    go.workspace.addToGrid(createGameObject(msg));
+    var shape = createGameObject(msg);
+    go.idTable[shape.id] = shape;
+    console.log('added: ', go.idTable[shape.id]);
+    go.workspace.addToGrid(shape);
   })
 
   socket.on('update object', function(msg) {
-    Helpers.copyKeys(go.idTable[msg.id], msg);
-  })
+    if(msg.cotr == "Player") {
+      if(go.playersTable.hasOwnProperty(msg.id)){
+        Helpers.copyKeys(go.playersTable[msg.id], msg);
+      }
+    }else {
+      if(go.idTable.hasOwnProperty(msg.id)) {
+        Helpers.copyKeys(go.idTable[msg.id], msg);
+      }
+    }
+  });
+
+  socket.on('update hp', function(msg) {
+    Helpers.updateProperty(msg, 'currentHP', msg.currentHP);
+  });
+
+  socket.on('update xp', function(msg) {
+    Helpers.updateProperty(msg, 'xp', msg.xp);
+  });
+
+  socket.on('update dead', function(msg) {
+    Helpers.updateProperty(msg, 'dead', msg.dead);
+  });
 
   socket.on('set world id', function(worldId) {
     player.worldId = worldId;
@@ -128,13 +155,8 @@ if(!go.testing) {
   socket.on('world section', function(msg) {
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
-        if(obj.cotr == "Planet") {
-          go.idTable[obj.id].isMined = obj.isMined;
-          go.idTable[obj.id].updateSize(obj.size);
-        }else
-        if(obj.cotr == "Guardian") {
-          go.idTable[obj.id].currentHP = obj.currentHP;
-        }
+
+        Helpers.copyKeys(go.idTable[obj.id], msg);
         return;
       }
       // if(shape.cotr == "Player") return;
@@ -166,14 +188,15 @@ if(!go.testing) {
     go.an.planet = player.currentlyMining;
     setTimeout(function() {
       go.sounds.scan.stop();
-      if(!player.currentlyMining && player.currentlyMining != go.an.planet) return;
+      if(go.an.planet && intersectCircle(player, go.an.planet)) {
       
-      go.an.style.display = "block";
-      go.an.style.top = "100px";
-      go.an.style.right = "300px";
-      go.an.textContent = "You found something on " + go.an.planet.name + ". Click to explore.";
-      
-      go.an.addEventListener('mousedown', startAdventure, false);
+        go.an.style.display = "block";
+        go.an.style.top = "100px";
+        go.an.style.right = "300px";
+        go.an.textContent = "You found something on " + go.an.planet.name + ". Click to explore.";
+        
+        go.an.addEventListener('mousedown', startAdventure, false);
+      }
     }, 3000 + Math.ceil(Math.random() * 4000));
     console.log(JSON.parse(msg));
   });
@@ -212,7 +235,6 @@ function positionLoop() {
   }
 }
 
-
 function checkSounds() {
   go.soundsLoaded += 1;
 }
@@ -224,7 +246,7 @@ function startGame() {
 
   }else
   if(player && player.hasOwnProperty('id') && go.spritesLoaded == go.totalSprites) {
-    go.collisionTimer = setInterval(collisionLoop, 8);
+    go.collisionTimer = setInterval(collisionLoop, 16);
     go.miningTimer = setInterval(miningLoop, 100);
     go.positionTimer = setInterval(positionLoop, 100);
     go.mainMenu.style.display = "none";

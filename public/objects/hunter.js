@@ -11,11 +11,16 @@ function Hunter(x, y, r, movementPattern) {
   this.movementStage = 0;
   this.t = 0;
   this.cotr = 'Hunter';
+  this.points = Math.floor(Math.random() * 4) + 3;
+  this.radian = this.getRadian();
+  this.reloadSpeed = Math.ceil(Math.random() * 6) * 30;
   this.checkCollision = true;
   this.projectileSpeed = 5;
   this.stroke = false;
   this.fill = true;
   this.fillStyle = Helpers.getRGB();
+  this.currentHP = this.maxHP = this.points;
+  this.dead = false;
 }
 
 if(typeof module != 'undefined') module.exports = Hunter;

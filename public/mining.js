@@ -1,5 +1,5 @@
 function miningLoop() {
-  var arr = go.workspace.getGridTilesOnObject(player);
+  var arr = go.workspace.getGridTile(player.posx, player.posy);
 
   arr.forEach(function(obj) {
     if(obj instanceof Planet) {

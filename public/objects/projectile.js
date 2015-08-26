@@ -1,6 +1,6 @@
 if(typeof(require) == 'function') var Helpers = require("../../public/helpers.js");
 function Projectile(x, y, r, vx, vy, fillStyle) {
-  this.id = Helpers.getNextId();
+  this.id = "proj" + Helpers.getNextId();
   this.posx = x;
   this.posy = y;
   this.r = r;

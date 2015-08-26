@@ -60,6 +60,7 @@ function keyDown(e) {
   if(e.keyCode == input.console && e.ctrlKey) {
     openConsole();
   }
+
   if(go.mode == 'adventure') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
     if(!player.drainFuel()) 
