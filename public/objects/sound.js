@@ -36,6 +36,10 @@ function Sound(src, loop, type, name) {
     this.audio.volume = 0;
   };
 
+  this.unpause = function() {
+    this.audio.volume = go.soundVolumes[this.type];
+    this.audio.play();
+  }
   this.stop = function() {
     this.audio.pause();
     this.audio.currentTime = 0;

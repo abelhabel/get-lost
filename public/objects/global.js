@@ -17,7 +17,7 @@ go.mainMenu = document.getElementById('mainMenu');
 go.instructionsMenu = document.getElementById('instructionsMenu');
 go.nowPlaying = document.getElementById('nowPlaying');
 go.toolTip = document.getElementById('toolTip');
-
+go.muteSound = document.getElementById('muteSound');
 go.an = document.getElementById('adventureNotification');
 go.adventureFrame = document.getElementById('adventureFrame');
 go.adventureScene = document.getElementById('sceneDescription');
@@ -73,6 +73,20 @@ go.sprites = {
   "purpleSpace": new Sprite('stars-background-purple-repeat.png')
 };
 
+go.muteSound.addEventListener('mousedown', function(){
+  if(go.soundVolumes.music == 0) 
+  {
+    go.soundVolumes.music = 0.4;
+    go.soundVolumes.effect = 0.2;
+    go.radio.tracks[go.radio.currentTrack].unpause();
+    this.textContent = "Mute sound";
+  }else {
+    go.soundVolumes.music = 0;
+    go.soundVolumes.effect = 0;
+    go.radio.tracks[go.radio.currentTrack].pause();
+    this.textContent = "Unmute sound";
+  }
+});
 go.soundVolumes = {
   music: 0.4,
   effect: 0.2
