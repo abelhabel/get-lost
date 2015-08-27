@@ -1,4 +1,7 @@
 var fs = require('fs');
+var Firebase = require("firebase");
+var bcrypt = require('bcrypt-nodejs');
+var db = new Firebase("https://get-lost.firebaseio.com/");
 var express = require('express');
 var app = express();
 var http = require('http');
@@ -124,7 +127,7 @@ function removeDisconnectedPlayers() {
 }
 
 function validate(obj) {
-  if(obj.hasOwnProperty('worldId')) {
+  if(obj && obj.hasOwnProperty('worldId')) {
     var world = Worlds[obj.worldId];
     
     if(obj.cotr == "Player") {
@@ -136,15 +139,24 @@ function validate(obj) {
 
   return false;
 }
-
+function createBlackHole(obj, socket) {
+  var blackHole = new BlackHole(obj.posx, obj.posy, obj.r);
+  Worlds[obj.worldId].idTable[blackHole.id] = blackHole;
+  Worlds[obj.worldId].workspace.addToGrid(blackHole);
+  emitNearBy(obj, socket, 'add object', blackHole);
+  console.log('black hole added', blackHole.posx, blackHole.posy);
+}
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/public/*', function(req, res) {
-  console.log(req.originalUrl);
   res.sendFile(__dirname + req.originalUrl);
 });
+
+function getUser(username, callback) {
+  db.child('users').child(username).once('value', callback);
+}
 
 io.on('connection', function(socket) {
   function emitWorldTile(msg) {
@@ -155,6 +167,7 @@ io.on('connection', function(socket) {
     var otherPlayers = getOtherPlayersThan(msg);
     socket.emit('add other players', otherPlayers);
   }
+
   // Initial connection of a new player
   // 1. create player
   removeDisconnectedPlayers();
@@ -176,9 +189,46 @@ io.on('connection', function(socket) {
   emitOtherPlayers(player);
   emitWorldTile(player);
 
+  socket.on('login', function(msg) {
+    console.log(msg.username, msg.password);
+
+    function validateUser(snapshot) {
+      if(snapshot.val() !== null) {
+        var hashedPassword = snapshot.val().password;
+        var match = bcrypt.compareSync(msg.password, hashedPassword);
+        if(match) {
+          console.log('match');
+          socket.emit('login success', true);
+        }else {
+          console.log('not matching');
+          socket.emit('login fail', true);
+        }
+      }else{
+        socket.emit('login fail', true);
+      }
+    }
+    getUser(msg.username, validateUser);
+    // db.child('users').update(users);
+  });
+
+  socket.on('signup', function(msg) {
+    getUser(msg.username, function(snapshot){
+      if(snapshot.val() !== null) {
+        var users = {};
+        users[msg.username] = {
+          username: msg.username,
+          password: bcrypt.hashSync(msg.password)
+        };
+        console.log(users);
+        db.child('users').update(users);
+      }else {
+        socket.emit('signup fail', true);
+      }
+    });
+  });
+
   socket.on('new world', function(msg) {
     var newWorld;
-    console.log('incoming player world id:', msg.worldId);
     broadcastToWorld(msg, socket, 'remove player', msg);
     
     if(Worlds.hasOwnProperty(msg.worldId + 1)) {
@@ -204,7 +254,6 @@ io.on('connection', function(socket) {
     emitOtherPlayers(msg);
   });
 
-  console.log('a user connected' + socket.handshake.address);
   // send this player to all other already connected players
   
   socket.on('get players', function(msg) {
@@ -216,7 +265,6 @@ io.on('connection', function(socket) {
   });
 
   socket.on('disconnect', function() {
-    console.log('user disconnected');
     removePlayer(socket.clientPlayer);
     socket.broadcast.emit('remove player', socket.clientPlayer);
   });
@@ -249,7 +297,6 @@ io.on('connection', function(socket) {
 
   socket.on('sync position', function(msg) {
     var player = validate(msg);
-    console.log(player.id);
     if(!player) return;
     player.posx = msg.posx;
     player.posy = msg.posy;
@@ -268,8 +315,17 @@ io.on('connection', function(socket) {
     // socket.emit('add other players', otherPlayers);
   });
 
+  socket.on('update grid', function(msg) {
+    var sobj = Worlds[msg.worldId].idTable[msg.id];
+    var initialX = sobj.posx;
+    var initialY = sobj.posy;
+    var updatedObj = Helpers.copyKeys(sobj, msg);
+    console.log('update: ' + msg.cotr);
+    Worlds[msg.worldId].workspace.updateGrid(initialX, initialY, updatedObj);
+  });
+
+
   socket.on('take damage', function(msg) {
-    console.log("attacker: ", msg.attacker);
     var attacker = validate(msg.attacker);
     var defender = validate(msg.defender);
 
@@ -277,11 +333,15 @@ io.on('connection', function(socket) {
 
     if(defender) {
       defender.currentHP -= msg.damage;
-      console.log('defender HP: ', defender.currentHP);
+      console.log(defender.cotr, defender.currentHP);
     }
 
     if(defender.currentHP <= 0) {
+      console.log(defender.cotr + ' died');
       defender.dead = true;
+      if(defender.cotr == "CircleBoss") {
+        createBlackHole(defender, socket);
+      }
       attacker.xp += defender.xp || defender.maxHP || 1;
       // socket.emit('update object', attacker);
       emitNearBy(player, socket, 'update dead', defender);
@@ -289,24 +349,6 @@ io.on('connection', function(socket) {
     }
     // socket.emit('update object', defender);
     emitNearBy(player, socket, 'update hp', defender);
-  });
-
-  socket.on('death', function(msg) {
-    var sobj = validate(msg);
-    if(sobj) {
-      sobj.dead = true;
-      sobj.checkCollision = false;
-      broadcastNearBy(sobj, socket, 'update object', sobj);
-      broadcastNearBy()
-      if(sobj.cotr == "CircleBoss" || sobj.cotr == "PolygonBoss") {
-        var blackHole = new BlackHole(msg.obj.posx, msg.obj.posy, msg.obj.r);
-        Worlds[msg.worldId].idTable[blackHole.id] = blackHole;
-        Worlds[msg.worldId].workspace.addToGrid(blackHole);
-        console.log('added black hole');
-        socket.emit('add object', blackHole);
-        broadcastNearBy(msg.player, socket, 'add object', blackHole);
-      }
-    }
   });
 
   socket.on('mining', function(msg) {
@@ -331,16 +373,21 @@ io.on('connection', function(socket) {
           hunter.id = hunter.team = Helpers.getNextId();
           hunter.worldId = msg.worldId;
           Worlds[msg.worldId].idTable[hunter.id] = hunter;
-          console.log(Worlds[msg.worldId].idTable[hunter.id]);
-          // Worlds[msg.worldId].workspace.addToGrid(hunter);
+          Worlds[msg.worldId].workspace.addToGrid(hunter);
           socket.emit('add object', hunter);
           broadcastNearBy(storedObject, socket, 'add object', hunter);
         }
 
-        if(Math.random() > 0.1 && !storedObject.hasAdventure) {
+        go.adventure = (go.adventure || 0) + 1
+        if(!storedObject.hasAdventure) {
           storedObject.hasAdventure = true;
-
-          fs.readFile(__dirname + "/data/adventures/corpse.json", function(err, data) {
+          if(go.adventure == 1) {
+            var fileName = "corpse.json";
+          }else {
+            var fileName = "crashed-space-ship.json";
+            go.adventure = 0;
+          }
+          fs.readFile(__dirname + "/data/adventures/" + fileName, function(err, data) {
             socket.emit('adventure', data.toString());
           });
           

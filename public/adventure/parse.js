@@ -1162,7 +1162,8 @@ function parseText(text)
                     if(keysByName.length == 1)
                     {
                         var key = keysByName[0];
-                        if(item.unlocksWith == key.name)
+                        console.log('key: ' + key);
+                        if(item.unlocksWith.toLowerCase() == key.name.toLowerCase())
                         {
                             feedback += "You unlock the " + item.name;
                             item.locked = "false";
@@ -1188,7 +1189,7 @@ function parseText(text)
                     if(keysByUnderstandAs.length == 1)
                     {
                         var key = keysByUnderstandAs[0];
-                        if(item.unlocksWith == key.name)
+                        if(item.unlocksWith.toLowerCase() == key.name.toLowerCase())
                         {
                             feedback += "You unlock the " + item.name;
                             item.locked = "false";

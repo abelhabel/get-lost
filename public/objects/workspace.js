@@ -27,7 +27,7 @@ function Workspace(w, h, gridX, gridY) {
     return this.grid[gridX + ":" + gridY];
   };
   this.getGridTilesOnObject = function(obj) {
-    var coordinates = Helpers.getObjectCoordinates(obj, this.gridSizeX/1.5);
+    var coordinates = Helpers.getObjectCoordinates(obj, this.gridSizeX);
     var arr = [];
     coordinates.forEach(function(obj) {
       var tile = ws.getGridTile(obj.x, obj.y);
@@ -67,6 +67,10 @@ function Workspace(w, h, gridX, gridY) {
     if(tileNew && tileInitial && tileInitial !== tileNew) {
       Helpers.removeFromArray(tileInitial, obj);
       tileNew.push(obj);
+      if(typeof(require) != 'function') {
+        if(obj.cotr != "Projectile") socket.emit('update grid', obj);
+      }
+      
     }
   };
   this.cotr = "Workspace";

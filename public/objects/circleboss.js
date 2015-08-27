@@ -5,16 +5,21 @@ function CircleBoss(x, y, r, name) {
   this.name = name;
   this.posx = x;
   this.posy = y;
+  this.vx = this.vy = 1;
+
   this.r = r;
   this.width = this.height = r * 2;
   this.forceMove = true;
   this.shootTimer = 0;
   this.reloadSpeed = 300;
   this.projectileSpeed = 2;
+
   CircleBoss.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
-      go.sounds.lasso.play();
+      this.vx *= -1;
+      this.vy *= -1;
+      go.sounds.warp.play();
       this.shootTimer = 0;
       var proj = new Projectile(this.posx, 
                                 this.posy, 

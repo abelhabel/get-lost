@@ -4,16 +4,18 @@ window.addEventListener('keyup', keyUp, false);
 window.addEventListener('mousemove', uiMouseMove, false);
 window.addEventListener('mousemove', playerRotate, false);
 window.addEventListener('mousedown', uiMouseDown, false);
-// window.addEventListener('mousedown', playerShoot, false);
 window.addEventListener('resize', resizeScreen, false);
+
 document.getElementById('startGame').addEventListener('mousedown', function(){startGame()}, false);
 document.getElementById('instructions').addEventListener('mousedown', function(){showInstructions()}, false);
+document.getElementById('login').addEventListener('mousedown', function(){Login.show()}, false);
+document.getElementById('submitLogin').addEventListener('mousedown', function(){Login.login()}, false);
+
 go.menuItems = document.getElementsByClassName('stat-frame');
 for(var i = 0, l = go.menuItems.length; i < l; i += 1) {
   go.menuItems[i].addEventListener('mouseover', function(){playSound(go.sounds.menuHover)}, false);
   var mineralName = go.menuItems[i].getAttribute('data-mineral');
   if(mineralName) {
-    console.log(mineralName);
     go.menuItems[i].addEventListener('mousedown', function() {
         player.setEngineFuel(this.getAttribute('data-mineral'));
         HUD.miniMap.drawStats();
@@ -36,7 +38,7 @@ var input = {
   console: 67
 };
 function keyUp(e) {
-  if(go.mode == 'adventure') return;
+  if(go.mode != 'explore') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
 
     if(e.keyCode == input.left)
@@ -61,7 +63,7 @@ function keyDown(e) {
     openConsole();
   }
 
-  if(go.mode == 'adventure') return;
+  if(go.mode != 'explore') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
     if(!player.drainFuel()) 
       return;
@@ -112,7 +114,7 @@ function setMineral() {
 
 }
 function uiMouseDown(e) {
-  if(go.mode == 'adventure') return;
+  if(go.mode != 'explore') return;
   var arr = go.ui.minerals;
   var onUI = false;
   arr.forEach(function(element){
@@ -125,7 +127,7 @@ function uiMouseDown(e) {
   if(!onUI) player.shoot();
 }
 function uiMouseMove(e) {
-  if(go.mode == 'adventure') return;
+  if(go.mode != 'explore') return;
   var arr = go.ui.minerals;
 
   // mouse over
@@ -145,7 +147,7 @@ function uiMouseMove(e) {
 }
 
 function playerShoot(e) {
-  if(go.mode == 'adventure') return;
+  if(go.mode != 'explore') return;
   if(!player) return;
   player.shoot();
 }
@@ -195,7 +197,9 @@ function showInstructions() {
 }
 
 function playSound(sound) {
-  sound.play();
+  if(sound instanceof Sound) {
+    sound.play();
+  }
 }
 
 function playSoundEffect(who, type) {

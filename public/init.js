@@ -38,7 +38,6 @@ function createGameObject(obj) {
 
   if(obj.cotr == "Hunter") {
     newObj = Helpers.copyKeys(new Hunter(), obj);
-    console.log("hunter added", newObj.posx, newObj.posy);
     newObj.ox = go.camera.xmin;
     newObj.oy = go.camera.ymin;
   }
@@ -48,6 +47,36 @@ function createGameObject(obj) {
 
 
 if(!go.testing) {
+
+  socket.on('login fail', function(msg) {
+    var popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = "The credentials you provided do not match" +
+                      " anyone on record. Do you want to create a" +
+                      " new user with these credentials?";
+    var create = document.createElement('div');
+    create.className = "stat-frame center-text";
+    create.innerHTML = "create";
+    var cancel = document.createElement('div');
+    cancel.className = "stat-frame center-text";
+    cancel.innerHTML = "Cancel";
+
+    popup.appendChild(create);
+    popup.appendChild(cancel);
+    go.body.appendChild(popup);
+    
+    create.addEventListener('mousedown', function(){
+      Login.signup();
+      go.body.removeChild(popup);
+    }, false);
+    
+    cancel.addEventListener('mousedown', function() {
+      go.body.removeChild(popup);
+    }, false);
+  });
+  socket.on('login success', function(msg) {
+    Login.signedIn();
+  });
   // send new player to server only once
   socket.on('new player', function(msg) {
     player = Helpers.copyKeys(new Player(), msg);
@@ -56,7 +85,6 @@ if(!go.testing) {
     player.setEngineFuel("Cermonophen");
     go.playersTable[player.id] = player;
     setUI();
-    console.log('got player');
   });
 
   socket.on('new world', function(msg) {
@@ -108,7 +136,6 @@ if(!go.testing) {
     for(key in msg) {
       newPlayer = msg[key];
       go.playersTable[newPlayer.id] = Helpers.copyKeys(new Player(), newPlayer);
-      console.log('added player: ' + newPlayer.id, newPlayer.posx, newPlayer.posy);
     }
     
   });
@@ -118,10 +145,12 @@ if(!go.testing) {
   });
 
   socket.on('add object', function(msg) {
-    var shape = createGameObject(msg);
-    go.idTable[shape.id] = shape;
-    console.log('added: ', go.idTable[shape.id]);
-    go.workspace.addToGrid(shape);
+    if(!go.idTable.hasOwnProperty(msg.id)) {
+      var shape = createGameObject(msg);
+      go.idTable[shape.id] = shape;
+      go.workspace.addToGrid(shape);
+    }
+    
   })
 
   socket.on('update object', function(msg) {
@@ -137,7 +166,7 @@ if(!go.testing) {
   });
 
   socket.on('update hp', function(msg) {
-    Helpers.updateProperty(msg, 'currentHP', msg.currentHP);
+    Helpers.updateProperty(msg, 'currentHP', Math.round(msg.currentHP * 10) / 10);
   });
 
   socket.on('update xp', function(msg) {
@@ -146,6 +175,7 @@ if(!go.testing) {
 
   socket.on('update dead', function(msg) {
     Helpers.updateProperty(msg, 'dead', msg.dead);
+
   });
 
   socket.on('set world id', function(worldId) {
@@ -161,6 +191,10 @@ if(!go.testing) {
       }
       // if(shape.cotr == "Player") return;
       var shape = createGameObject(obj);
+      if(shape.cotr == "CircleBoss") {
+        player.vx = player.vy = 0;
+        go.found = shape;
+      }
       go.idTable[shape.id] = shape;
       if(shape.cotr != "Player") {
         go.workspace.addToGrid(shape);
@@ -198,7 +232,6 @@ if(!go.testing) {
         go.an.addEventListener('mousedown', startAdventure, false);
       }
     }, 3000 + Math.ceil(Math.random() * 4000));
-    console.log(JSON.parse(msg));
   });
 
   socket.on('player shoot', function(msg) {
@@ -239,7 +272,6 @@ function checkSounds() {
   go.soundsLoaded += 1;
 }
 function startGame() {
-  console.log(go.spritesLoaded, go.totalSprites, go.soundsLoaded, go.totalSounds);
   if(go.testing) {
     testGalaxyLoad(400, 40, 200);
     objectsSync(10);
@@ -256,5 +288,6 @@ function startGame() {
     go.miniMap.context.fillStyle = "#AAAAAA";
     draw();
     go.sounds.intro.play();
+    go.mode = 'explore';
   }
 }

@@ -14,6 +14,7 @@ function Projectile(x, y, r, vx, vy, fillStyle) {
   this.checkCollision = true;
   this.collisionMethod = "c";
 
+  this.updateGrid = true;
   this.currentHP = 0;
   this.damage = 1;
   this.cotr = "Projectile";

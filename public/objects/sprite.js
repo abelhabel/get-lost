@@ -1,6 +1,6 @@
 function Sprite(src) {
   this.image = new Image();
-  this.image.src = "public/img/" + src;
+  this.image.src = window.location.protocol + "//www.prepressed.se/sprites/" + src;
   this.image.onload = function() {
     checkSprites();
   };

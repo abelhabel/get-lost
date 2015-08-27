@@ -21,6 +21,7 @@ function Hunter(x, y, r, movementPattern) {
   this.fillStyle = Helpers.getRGB();
   this.currentHP = this.maxHP = this.points;
   this.dead = false;
+  this.updateGrid = true;
 }
 
 if(typeof module != 'undefined') module.exports = Hunter;

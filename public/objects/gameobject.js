@@ -13,6 +13,8 @@ function GameObject() {
   this.ymin;
   this.ymax;
   
+  this.updateGrid = false;
+
   this.dead = false;
 
   this.stroke = true;
@@ -56,24 +58,8 @@ function GameObject() {
     this.ymax = this.posy + this.height/2;
   };
   
-  this.onDeath = function() {
-    this.dead = true;
-    this.checkCollision = false;
-    if(this.cotr != 'Projectile') {
-      socket.emit('death', this);
-    }
-
-    // if(this.cotr != 'Projectile' && this.cotr != 'Planet') socket.emit('death', this);
-  };
 
   this.takeDamage = function(amount, attacker) {
-    // this.currentHP -= amount;
-    // this.currentHP = Math.round(this.currentHP * 10) / 10;
-    // playSoundEffect(this, 'Hit');
-    // if(this.currentHP <= 0) {
-    //   this.onDeath();
-    // }
-    console.log(attacker.id + " attacks " + this.id);
     if(this instanceof Projectile) {
       go.workspace.removeFromGrid(this);
       delete go.idTable[this.id];
@@ -82,14 +68,12 @@ function GameObject() {
       // player
     if(!Helpers.isOtherPlayerTeam(attacker, player.team)) {
       if(attacker instanceof Projectile) {
-        console.log('projectile damage', attacker.damage);
         if(attacker.team == player.team) {
           attacker = player;
         }else {
           attacker = go.idTable[attacker.team];
         }
       }
-      console.log("recalculated attacker: " + attacker.id + " attacks " + this.id);
       socket.emit('take damage', {attacker: attacker, defender: this, damage: amount});
     }
   };

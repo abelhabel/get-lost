@@ -40,10 +40,10 @@ var Helpers = {
     if(shape.posy < 0) {
       shape.posy = workspace.height - 500;
     }
-
-    // move if following
     
+    // move if following
     if(shape.follow) {
+      if(shape.cotr == "CircleBoss") console.log('move boss');
       shape.rotation += shape.rotationSpeed;
       shape.followRotation += shape.followRotationSpeed;
       if(shape.followPattern) {
@@ -58,7 +58,7 @@ var Helpers = {
       bezierPattern.call(shape, shape.movementPattern[shape.movementStage]);
     }
 
-    if(shape instanceof Player) return;
+    if(shape instanceof Player || !shape.updateGrid) return;
     go.workspace.updateGrid(initialX, initialY, shape);
   },
   getNextId: function getNextId() {

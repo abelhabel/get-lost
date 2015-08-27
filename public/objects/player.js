@@ -29,6 +29,7 @@ function Player(x, y, r) {
   Player.prototype.shoot = function() {
     
     if(this.minerals[this.engineFuel] < 1 || this.reloading) return;
+    playSoundEffect(this, 'Shoot');
     socket.emit('player shoot', this);
     this.minerals[this.engineFuel] -= 1;
     this.projectileSpeed = Minerals.minerals[this.engineFuel].projectileSpeed

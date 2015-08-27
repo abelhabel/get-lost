@@ -1,7 +1,7 @@
 if(!go) var go = {};
 go.playerDiv = document.getElementById('player');
-go.mode = 'explore';
-go.gridSize = 800;
+go.mode = 'menu';
+go.gridSize = 2000;
 go.workspace = new Workspace(1e5, 1e5, go.gridSize, go.gridSize),
 go.bgScreen = new Screen(window.innerWidth, window.innerHeight, document.getElementById('background'));
 go.ui = new UI(),
@@ -17,15 +17,16 @@ go.mainMenu = document.getElementById('mainMenu');
 go.instructionsMenu = document.getElementById('instructionsMenu');
 go.nowPlaying = document.getElementById('nowPlaying');
 go.toolTip = document.getElementById('toolTip');
+
 go.an = document.getElementById('adventureNotification');
 go.adventureFrame = document.getElementById('adventureFrame');
 go.adventureScene = document.getElementById('sceneDescription');
 go.adventureFeedback = document.getElementById('feedback');
 go.adventureInput = document.getElementById('input');
+
 go.body = document.getElementsByTagName('body')[0];
 go.console = document.getElementById('console');
 go.console.addEventListener('keyup', function(e){
-  console.log(e);
   if(e.keyCode == 13 && !e.shiftKey) {
     evaluateConsole(this.textContent.trim());
     this.innerHTML = "";
@@ -73,8 +74,8 @@ go.sprites = {
 };
 
 go.soundVolumes = {
-  music: 0.1,
-  effect: 0.05
+  music: 0.4,
+  effect: 0.2
 };
 go.soundsLoaded = 0;
 go.sounds = {
@@ -82,9 +83,11 @@ go.sounds = {
   guardianShoot: new Sound('shoot/guardian.mp3'),
   guardianHit: new Sound('hit/guardian.mp3'),
   boss1: new Sound('atmosphere/boss1.mp3'),
-  lasso: new Sound('atmosphere/lasso.mp3'),
+  symbal: new Sound('atmosphere/symbal.mp3'),
   noise: new Sound('atmosphere/noise.mp3'),
   scan: new Sound('atmosphere/scan.mp3'),
+  warp: new Sound('atmosphere/warp.mp3'),
+  playerShoot: new Sound('shoot/player.mp3'),
   intro: new Sound('intro.mp3', true, 'music', "When lost stars are found"),
   bricked: new Sound('bricked-expectations.mp3', false, 'music', 'Bricked Expectations'),
   distressCall: new Sound('distress-call.mp3', false, 'music', 'Distress Call'),

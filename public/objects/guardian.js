@@ -22,7 +22,7 @@ function Guardian(x, y, planet) {
   Guardian.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
-      go.sounds.guardianShoot.play();
+      playSoundEffect(this, 'Shoot');
       this.shootTimer = 0;
       for(var i = 0; i < this.points; i += 1) {
         var x = this.r * Math.cos(i * this.radian + this.rotation);

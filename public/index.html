@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title></title>
+  <title>Get Lost</title>
+  <script src="https://cdn.firebase.com/js/client/2.2.9/firebase.js"></script>
   <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="/public/style.css">
 </head>
@@ -10,6 +11,9 @@
 <canvas id="planets"></canvas>
 <canvas id="players"></canvas>
 <canvas id="ui"></canvas>
+<div id="playerContainer">
+  <div id="player"></div>
+</div>
 <div id="minimapFrame" class="circle-frame" style="display: none">
   <canvas id="minimap" style="display: none;"></canvas>
 </div>
@@ -17,7 +21,13 @@
 <div id="mainMenu">
   <div id="startGame" class="stat-frame">Start Game</div>
   <div id="instructions" class="stat-frame">Instructions</div>
-
+  <div id="login" class="stat-frame">Log in / Sign up</div>
+  <div id="loginMenu" style="display: none;">
+    <input type="text" id="username" class="stat-frame yellow-text">
+    <input type="password" id="password" class="stat-frame yellow-text">
+    <div id="submitLogin" class="stat-frame">Submit</div>
+  </div>
+  <div id="logout" class="stat-frame" style="display: none">Log out</div>
 </div>
 <div id="instructionsMenu" style="display: none;">
   <div class="stat-frame">
@@ -44,6 +54,7 @@
       </ul>
   </div>
 </div>
+
 <div id="uiFrame" style="display: none;">
 
 
@@ -74,10 +85,7 @@
   <div id="nowPlaying" class="stat-frame yellow-text" data-tooltip="Click to find another song in space."></div>
 
 </div>
-<div id="playerContainer">
-  <div id="player"></div>
 
-</div>
 <div id="adventureFrame" style="display: none;">
   <div id="sceneDescription"></div>
   <div id="feedback"></div>
@@ -134,5 +142,6 @@
 <script src="/public/adventure/startadventure.js"></script>
 <script src="/public/lightbox.js"></script>
 <script src="/public/testing.js"></script>
+<script src="/public/login.js"></script>
 <script src="/public/init.js"></script>
 </html>

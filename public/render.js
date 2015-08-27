@@ -3,8 +3,10 @@ function draw() {
 
   function renderShape(shape, context) {
     if(shape.dead) return;
+    
     if( typeof(shape.move) == 'function' && (shape.follow || shape.vx != 0 || shape.vy != 0) && shape != player) {
       Helpers.move(shape);
+      // if(shape.cotr == "CircleBoss") console.log('move boss');
     }
     if(shape instanceof Planet) {
       render.Planet(shape, context);

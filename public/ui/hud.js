@@ -70,7 +70,6 @@ var HUD = {
       // go.miniMap.canvas.style.marginTop = this.ymin + "px";
       go.miniMap.canvas.style.display = "block";
       this.visible = true;
-      console.log('open tab menu');
       this.drawGrid(go.miniMap.context);
       this.drawStats();
       go.hud.canvas.style.display = "block";
@@ -85,7 +84,6 @@ var HUD = {
       go.hudHTML.style.display = "none";
       go.minimapFrame.style.display = "none";
       this.visible = false;
-      console.log('close tab menu');
     },
     save: function() {
       localStorage.miniMap = go.miniMap.canvas.toDataURL();
