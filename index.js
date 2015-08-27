@@ -1,7 +1,17 @@
 var fs = require('fs');
 var Firebase = require("firebase");
+var fbSecret = 'bnUlHC7KpcNxbnI2H13Y9rZFVw1hQu9wnOrBC9A9';
 var bcrypt = require('bcrypt-nodejs');
 var db = new Firebase("https://get-lost.firebaseio.com/");
+db.authWithCustomToken(fbSecret, dbAuth);
+function dbAuth(msg) {
+  if(msg === null) {
+    console.log('connected to firebase');
+  }else {
+    console.log('could not connect to firebase');
+  }
+}
+
 var express = require('express');
 var app = express();
 var http = require('http');
@@ -144,7 +154,6 @@ function createBlackHole(obj, socket) {
   Worlds[obj.worldId].idTable[blackHole.id] = blackHole;
   Worlds[obj.worldId].workspace.addToGrid(blackHole);
   emitNearBy(obj, socket, 'add object', blackHole);
-  console.log('black hole added', blackHole.posx, blackHole.posy);
 }
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
@@ -158,6 +167,25 @@ function getUser(username, callback) {
   db.child('users').child(username).once('value', callback);
 }
 
+function savePlayer(username, thisPlayer, callback) {
+  db.child('users').child(username).update({
+    player: {
+      posx: thisPlayer.posx,
+      posy: thisPlayer.posy,
+      r: thisPlayer.r,
+      worldId: thisPlayer.worldId,
+      currentHP: thisPlayer.currentHP,
+      maxHP: thisPlayer.maxHP,
+      xp: thisPlayer.xp || 0
+    }
+  });
+}
+
+function dbClearPlayer(username) {
+  db.child('users').child(username).child('player').remove();
+}
+
+
 io.on('connection', function(socket) {
   function emitWorldTile(msg) {
     var storedObjects = Worlds[msg.worldId].workspace.getGridTilesOnObject(msg);
@@ -168,29 +196,53 @@ io.on('connection', function(socket) {
     socket.emit('add other players', otherPlayers);
   }
 
-  // Initial connection of a new player
-  // 1. create player
-  removeDisconnectedPlayers();
-  var player = new Player(50000, 50000, 25);
-  player.socketId = socket.id;
-  player.worldId = 0;
-  socket.clientPlayer = player;
-  // 2. store socket
-  Worlds[player.worldId].sockets.push(socket);
-  Worlds[player.worldId].playersTable[player.id] = player;
-  // 3. return player
-  socket.emit('new player', player);
+  socket.on('get player', function(msg) {
 
-  // 4. broadcast player
-  broadcastToWorld(player, socket, 'add player', player);
-  // socket.broadcast.emit('add player', player);
+    function initPlayer(player) {
+      player.socketId = socket.id;
+      player.worldId = 0;
+      savePlayer(socket.credentials.username, player);
+      socket.clientPlayer = player;
+      // 2. store socket
+      Worlds[player.worldId].sockets.push(socket);
+      Worlds[player.worldId].playersTable[player.id] = player;
+      // 3. return player
+      socket.emit('new player', player);
 
-  // 5. return all other players
-  emitOtherPlayers(player);
-  emitWorldTile(player);
+      // 4. broadcast player
+      broadcastToWorld(player, socket, 'add player', player);
+      // socket.broadcast.emit('add player', player);
+
+      // 5. return all other players
+      emitOtherPlayers(player);
+      emitWorldTile(player);
+    }
+    // Initial connection of a new player
+    // 1. create player
+    removeDisconnectedPlayers();
+    if(socket.credentials) {
+      getUser(socket.credentials.username, function(snapshot) {
+        if(snapshot.val().player) {
+          var player = snapshot.val().player;
+          player = Helpers.copyKeys(new Player(), player);
+        }else {
+          var player = new Player(50000, 50000, 25);
+          
+        }
+        initPlayer(player);
+      })
+    }else {
+      var player = new Player(50000, 50000, 25);
+      savePlayer(socket.credentials.username, player, function(){});
+      initPlayer(player);
+    }
+  });
+  
+  socket.on('logout', function(msg) {
+    socket.credentials = null;
+  })
 
   socket.on('login', function(msg) {
-    console.log(msg.username, msg.password);
 
     function validateUser(snapshot) {
       if(snapshot.val() !== null) {
@@ -198,7 +250,8 @@ io.on('connection', function(socket) {
         var match = bcrypt.compareSync(msg.password, hashedPassword);
         if(match) {
           console.log('match');
-          socket.emit('login success', true);
+          socket.emit('login success', msg);
+          socket.credentials = msg;
         }else {
           console.log('not matching');
           socket.emit('login fail', true);
@@ -213,14 +266,15 @@ io.on('connection', function(socket) {
 
   socket.on('signup', function(msg) {
     getUser(msg.username, function(snapshot){
-      if(snapshot.val() !== null) {
+      if(snapshot.val() === null) {
         var users = {};
         users[msg.username] = {
           username: msg.username,
           password: bcrypt.hashSync(msg.password)
         };
-        console.log(users);
         db.child('users').update(users);
+        socket.emit('signup success', msg);
+        socket.credentials = msg;
       }else {
         socket.emit('signup fail', true);
       }
@@ -303,16 +357,13 @@ io.on('connection', function(socket) {
     player.vx = msg.vx;
     player.vy = msg.vy;
     broadcastToWorld(player, socket, 'sync position', player);
-    // socket.broadcast.emit('sync position', msg)
+    savePlayer(socket.credentials.username, player);
   })
 
   socket.on('get new world tile', function(msg) {
     var sobj = validate(msg);
     emitWorldTile(sobj);
     broadcastNearBy(sobj, socket, 'sync position', sobj);
-    // broadcastToWorld(Worlds[socket.clientPlayer.worldId], msg, 'sync position', msg);
-    // var otherPlayers = getOtherPlayersThan(Worlds[socket.clientPlayer.worldId], socket.clientPlayer);
-    // socket.emit('add other players', otherPlayers);
   });
 
   socket.on('update grid', function(msg) {
@@ -320,7 +371,6 @@ io.on('connection', function(socket) {
     var initialX = sobj.posx;
     var initialY = sobj.posy;
     var updatedObj = Helpers.copyKeys(sobj, msg);
-    console.log('update: ' + msg.cotr);
     Worlds[msg.worldId].workspace.updateGrid(initialX, initialY, updatedObj);
   });
 
@@ -328,24 +378,28 @@ io.on('connection', function(socket) {
   socket.on('take damage', function(msg) {
     var attacker = validate(msg.attacker);
     var defender = validate(msg.defender);
-
+    if(!defender || !attacker) return;
     var player = getPlayerOnSocket(Worlds[defender.worldId], socket.id);
 
     if(defender) {
       defender.currentHP -= msg.damage;
-      console.log(defender.cotr, defender.currentHP);
     }
 
     if(defender.currentHP <= 0) {
-      console.log(defender.cotr + ' died');
       defender.dead = true;
-      if(defender.cotr == "CircleBoss") {
-        createBlackHole(defender, socket);
+      if(defender.id == player.id) {
+        socket.emit('game over');
+        dbClearPlayer(socket.credentials.username);
+        removePlayer(player);
+      }else {
+        if(defender.cotr == "CircleBoss") {
+          createBlackHole(defender, socket);
+        }
+        attacker.xp += defender.xp || defender.maxHP || 1;
+        // socket.emit('update object', attacker);
+        emitNearBy(player, socket, 'update dead', defender);
+        emitNearBy(player, socket, 'update xp', attacker);
       }
-      attacker.xp += defender.xp || defender.maxHP || 1;
-      // socket.emit('update object', attacker);
-      emitNearBy(player, socket, 'update dead', defender);
-      emitNearBy(player, socket, 'update xp', attacker);
     }
     // socket.emit('update object', defender);
     emitNearBy(player, socket, 'update hp', defender);

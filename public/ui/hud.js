@@ -39,6 +39,7 @@ var HUD = {
       }
       var tile = go.workspace.getGridTile(player.posx, player.posy);
       ct.fillStyle = "#FF0000";
+      if(!tile) return;
       tile.forEach(function(shape) {
         
         if(shape instanceof Projectile || shape instanceof Player || shape instanceof Camera) {
@@ -94,5 +95,15 @@ var HUD = {
       go.miniMap.context.drawImage(image, 0, 0, this.width, this.height);
       go.miniMap.canvas.src = localStorage.miniMap;
     }
+  },
+  gameOver: function() {
+    HUD.miniMap.close();
+    Login.logout();
+    go.bgScreen.canvas.style.display = "none";
+    var popup = Login.popup('GAME OVER');
+    var cancel = Login.cancelButton(popup);
+    cancel.addEventListener('mousedown', function(){
+      go.mainMenu.style.display = "block";
+    }, false);
   }
 }

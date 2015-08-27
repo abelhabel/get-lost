@@ -48,34 +48,24 @@ function createGameObject(obj) {
 
 if(!go.testing) {
 
-  socket.on('login fail', function(msg) {
-    var popup = document.createElement('div');
-    popup.className = 'popup';
-    popup.innerHTML = "The credentials you provided do not match" +
-                      " anyone on record. Do you want to create a" +
-                      " new user with these credentials?";
-    var create = document.createElement('div');
-    create.className = "stat-frame center-text";
-    create.innerHTML = "create";
-    var cancel = document.createElement('div');
-    cancel.className = "stat-frame center-text";
-    cancel.innerHTML = "Cancel";
+  socket.on('game over', function(msg) {
+    console.log('game over');
+    HUD.gameOver();
+  });
 
-    popup.appendChild(create);
-    popup.appendChild(cancel);
-    go.body.appendChild(popup);
-    
-    create.addEventListener('mousedown', function(){
-      Login.signup();
-      go.body.removeChild(popup);
-    }, false);
-    
-    cancel.addEventListener('mousedown', function() {
-      go.body.removeChild(popup);
-    }, false);
+  socket.on('login fail', function(msg) {
+    Login.loginFail();
   });
   socket.on('login success', function(msg) {
-    Login.signedIn();
+    Login.signedIn(msg);
+  });
+
+  socket.on('signup success', function(msg) {
+    Login.signedIn(msg);
+  });
+
+  socket.on('signup fail', function(msg) {
+    Login.signupFail();
   });
   // send new player to server only once
   socket.on('new player', function(msg) {
@@ -85,6 +75,7 @@ if(!go.testing) {
     player.setEngineFuel("Cermonophen");
     go.playersTable[player.id] = player;
     setUI();
+    HUD.miniMap.load();
   });
 
   socket.on('new world', function(msg) {
@@ -264,6 +255,7 @@ function positionLoop() {
   go.positionLoopTimer += 1;
   if(go.positionLoopTimer > 100) {
     go.positionLoopTimer = 0;
+    localStorage.minimap = HUD.miniMap.save();
     socket.emit('sync position', player);
   }
 }
@@ -281,11 +273,13 @@ function startGame() {
     go.collisionTimer = setInterval(collisionLoop, 16);
     go.miningTimer = setInterval(miningLoop, 100);
     go.positionTimer = setInterval(positionLoop, 100);
+    go.bgScreen.canvas.style.display = "block";
     go.mainMenu.style.display = "none";
     console.log('start game');
     HUD.miniMap.open();
     HUD.miniMap.close();
     go.miniMap.context.fillStyle = "#AAAAAA";
+    go.validGame = true;
     draw();
     go.sounds.intro.play();
     go.mode = 'explore';

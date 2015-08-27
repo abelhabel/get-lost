@@ -10,6 +10,7 @@ document.getElementById('startGame').addEventListener('mousedown', function(){st
 document.getElementById('instructions').addEventListener('mousedown', function(){showInstructions()}, false);
 document.getElementById('login').addEventListener('mousedown', function(){Login.show()}, false);
 document.getElementById('submitLogin').addEventListener('mousedown', function(){Login.login()}, false);
+document.getElementById('logout').addEventListener('mousedown', function(){Login.logout()}, false);
 
 go.menuItems = document.getElementsByClassName('stat-frame');
 for(var i = 0, l = go.menuItems.length; i < l; i += 1) {

@@ -1,5 +1,7 @@
 function draw() {
-  window.requestAnimationFrame(draw);
+  if(go.validGame) {
+    window.requestAnimationFrame(draw);
+  }
 
   function renderShape(shape, context) {
     if(shape.dead) return;
