@@ -26,6 +26,7 @@ go.adventureFeedback = document.getElementById('feedback');
 go.adventureInput = document.getElementById('input');
 go.compass = document.getElementById('compass');
 go.speedDiv = document.getElementById('currentSpeed');
+go.splash = document.getElementById('splash');
 go.body = document.getElementsByTagName('body')[0];
 go.console = document.getElementById('console');
 go.console.addEventListener('keyup', function(e){
@@ -73,6 +74,7 @@ go.sprites = {
   "Alpadium": new Sprite('planets/planet12.png'),
   "spikedShip": new Sprite('spikedship.png'),
   "purpleSpace": new Sprite('stars-background-purple-repeat.png'),
+  "splash": new Sprite('andreas_get_lost.png')
 };
 
 go.muteSound.addEventListener('mousedown', function(){

@@ -15,6 +15,19 @@ canvas {
   position: absolute;
   z-index: 0;
 }
+
+#splash {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: fixed;
+  width: 768px;
+  height: 180px;
+  background-image: url('https://www.prepressed.se/sprites/andreas_get_lost.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
 #decorations {
   -webkit-filter: blur(10px);
   -mozilla-filter: blur(10px);
@@ -135,6 +148,7 @@ ul li {
   margin: auto;
   width: 90%;
   max-height: 400px;
+  z-index: 1;
 }
 #instructionsMenu ul {
   min-width: 160px;

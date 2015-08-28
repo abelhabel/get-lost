@@ -203,8 +203,13 @@ function showInstructions() {
   console.log('show hide');
   if(go.instructionsMenu.style.display == "none") {
     go.instructionsMenu.style.display = "block";
+    go.splash.style.display = "none";
   }else {
     go.instructionsMenu.style.display = "none";
+    if(!go.valiedGame) {
+      go.splash.style.display = "block";
+    }
+    
   }
 }
 

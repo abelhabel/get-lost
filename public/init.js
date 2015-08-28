@@ -288,6 +288,7 @@ function startGame() {
     HUD.miniMap.close();
     go.miniMap.context.fillStyle = "#AAAAAA";
     go.validGame = true;
+    go.splash.style.display = "none";
     draw();
     go.sounds.intro.play();
     go.mode = 'explore';
