@@ -17,7 +17,6 @@ function getTextAsIs(div)
     {
         var message = div.textContent; //div.innerHTML.replace(/\&lt;br\&gt;/gi,"\n").replace(/(&lt;([^&gt;]+)&gt;)/gi, "").replace(/<br>/g,"");
     }
-    console.log(message);
     return message;
 }
 function getTextInputs(increment)
@@ -66,7 +65,6 @@ function parseText(text)
     var verbs = ["exit","take", "eat", "drink", "look", "bash", "lock", "unlock", "close", "open", "sit", "go", "search"];
     var prepositions = ["at", "inside", "in", "through", "with"];
     
-    console.log("text" + text);
     adventure.textInputsIndex = 0;
     adventure.textInputs.push(text);
     var feedback = "";
@@ -80,11 +78,10 @@ function parseText(text)
     var tripleWords = getTripleWords(words);
     words = tripleWords.concat(doubleWords, words);
     words = removeDuplicateWords();
-    getScene(player.currentScene).visited = true;
+    player.currentScene.visited = true;
     var sceneItems = player.currentScene.objects;
     var containedSceneItems = getContainedSceneItems();
     var containedInventoryItems = getContainedItems(player.inventory);
-    console.log("contained scene items", containedSceneItems, "contained inventory items", containedInventoryItems);
     // ITEMS
     var item = getItem(words);
     var containerItem = getContainerItem(words)[1];
@@ -397,7 +394,6 @@ function parseText(text)
                 }
             }
         }
-        console.log("items by name", temp);
         var foundItems = [];
         for(var i = 0; i < list.length; i += 1)
         {
@@ -586,7 +582,6 @@ function parseText(text)
     {
         feedback += "To describe your action, use these words: " + printList(verbs);
         feedback += "<br>Prepositions you can use are: " + printList(prepositions);
-        console.log('help' + feedback);
     }
     // ITEM DUPLICATES
     // var duplicate = getItemDuplicates(words);
@@ -610,11 +605,6 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems, words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems.concat(containedInventoryItems), words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems.concat(containedInventoryItems), words);
-        console.log(containedSceneItems.concat(containedInventoryItems));
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one item to take.";
@@ -629,7 +619,7 @@ function parseText(text)
                 {
                     feedback = "You pick up the " + item.name;
                    player.inventory.push(item);
-                   removeItemFromArray(item, getScene(player.currentScene).objects); 
+                   removeItemFromArray(item, player.currentScene.objects); 
                 }else
                 {
                     feedback += "You already carry the " + item.name;
@@ -648,7 +638,6 @@ function parseText(text)
         {
             parentItem = containedItemsByName[0]['parentItem'];
             containerItem = containedItemsByName[0]['item'];
-            console.log("take container item", containedItemsByName, parentItem, containerItem);
             if(parentItem.open == "true")
             {
                 
@@ -676,7 +665,7 @@ function parseText(text)
             item = itemsByUnderstandAs[0];
             feedback = "You pick up the " + item.name;
             player.inventory.push(item);
-            removeItemFromArray(item, getScene(player.currentScene).objects);
+            removeItemFromArray(item, player.currentScene.objects);
         }else
         {
             feedback = "There is no " + getNoun();
@@ -693,13 +682,6 @@ function parseText(text)
         var containedItemsByName = getContainedItemsByName(containedSceneItems.concat(containedInventoryItems), prePrepositionWords);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems.concat(containedInventoryItems), prePrepositionWords);
         
-        console.log(containedSceneItems.concat(containedInventoryItems));
-        console.log("items by name", itemsByName);
-        console.log("containers by name", containersByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("containers by understand as", containersByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one item to put.";
@@ -843,11 +825,6 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems.concat(player.inventory), words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems, words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, words);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
         if(checkAnyWord('at', words))
         {
             if(itemsByName.length > 1)
@@ -967,11 +944,7 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems.concat(player.inventory), words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems, words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, words);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one thing to open.";
@@ -1047,11 +1020,7 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems.concat(player.inventory), words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems, words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, words);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one thing to open.";
@@ -1127,11 +1096,7 @@ function parseText(text)
         var containedItemsByName = getContainedItemsByName(containedSceneItems, prePrepositionWords);
         var containedKeysByName = getContainedItemsByName(containedSceneItems, prePrepositionWords);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, prePrepositionWords);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one thing to unlock.";
@@ -1162,7 +1127,6 @@ function parseText(text)
                     if(keysByName.length == 1)
                     {
                         var key = keysByName[0];
-                        console.log('key: ' + key);
                         if(item.unlocksWith.toLowerCase() == key.name.toLowerCase())
                         {
                             feedback += "You unlock the " + item.name;
@@ -1303,11 +1267,7 @@ function parseText(text)
         var containedItemsByName = getContainedItemsByName(containedSceneItems, prePrepositionWords);
         var containedKeysByName = getContainedItemsByName(containedSceneItems, prePrepositionWords);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, prePrepositionWords);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one thing to lock.";
@@ -1475,11 +1435,7 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems.concat(player.inventory), words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems, words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, words);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one item to eat.";
@@ -1499,7 +1455,7 @@ function parseText(text)
                     removeItemFromArray(item, player.inventory);
                 }else
                 {
-                    removeItemFromArray(item, getScene(player.currentScene).objects);
+                    removeItemFromArray(item, player.currentScene.objects);
                 }
             }else
             {
@@ -1537,11 +1493,7 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems.concat(player.inventory), words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems, words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, words);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one thing to drink.";
@@ -1594,11 +1546,7 @@ function parseText(text)
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems.concat(player.inventory), words);
         var containedItemsByName = getContainedItemsByName(containedSceneItems, words);
         var containedItemsByUnderstandAs = getContainedItemsByUnderstandAs(containedSceneItems, words);
-        console.log(containedSceneItems);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
-        console.log("contained items by name", containedItemsByName);
-        console.log("contained items by understand as", containedItemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one item to bash.";
@@ -1622,7 +1570,7 @@ function parseText(text)
                 {
                     feedback += " and break it. <br> Inside the " + item.name + " you find " + printContainerItems(item);
                     item.broken = "true";
-                    var scene = getScene(player.currentScene);
+                    var scene = player.currentScene;
                     scene.objects = scene.objects.concat(item.contains);
                     item.contains = [];
                 }
@@ -1655,7 +1603,7 @@ function parseText(text)
                 {
                     feedback += " and break it. <br> Inside the " + item.name + " you find " + printContainerItems(item);
                     item.broken = "true";
-                    var scene = getScene(player.currentScene);
+                    var scene = player.currentScene;
                     scene.objects = scene.objects.concat(item.contains);
                     item.contains = [];
                 }
@@ -1671,8 +1619,7 @@ function parseText(text)
     {
         var itemsByName = getItemsByName(sceneItems, words);
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems, words);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one thing."
@@ -1756,8 +1703,7 @@ function parseText(text)
     {
         var itemsByName = getItemsByName(sceneItems, words);
         var itemsByUnderstandAs = getItemsByUnderstandAs(sceneItems, words);
-        console.log("items by name", itemsByName);
-        console.log("items by understand as", itemsByUnderstandAs);
+
         if(itemsByName.length > 1)
         {
             feedback += "Please specify only one things to use."

@@ -5,7 +5,7 @@ function startAdventure() {
   go.adventureFeedback.innerHTML = "Type 'help' to get a list of commands you can use. Type 'exit'" +
                                    " to exit the adventure and return to exploring space."
   player.currentScene = go.currentAdventure.scenes[0];
-  go.adventureScene.textContent = player.currentScene.sceneDescription;
+  go.adventureScene.innerHTML = player.currentScene.sceneDescription;
 }
 
 function quitAdventure() {

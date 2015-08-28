@@ -52,7 +52,9 @@ var Login = {
     }
   },
   loginReturn: function() {
-    socket.emit('login', JSON.parse(localStorage.credentials));
+    if(localStorage.credentials) {
+      socket.emit('login', JSON.parse(localStorage.credentials));
+    }
   },
   loginFail: function() {
     var msg = "The credentials you provided do not match" +

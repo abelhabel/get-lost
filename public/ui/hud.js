@@ -1,6 +1,8 @@
 var HUD = {
   scaleX: go.uiScreen.width / 100,
   scaleY: go.uiScreen.height / 100,
+  xp: document.getElementById('xp'),
+  hp: document.getElementById('hp'),
   display: function(ct){
     ct.clearRect(0,0, window.innerWidth, window.innerHeight);
     HUD.scaleX = window.innerWidth / 100;
@@ -63,6 +65,7 @@ var HUD = {
       }
     },
     open: function() {
+      go.mode = "ui";
       this.width = go.miniMap.canvas.width;
       this.height = go.miniMap.canvas.height;
       this.xmin = window.innerWidth/2 - this.width/2;
@@ -77,9 +80,14 @@ var HUD = {
       go.hudHTML.style.display = "block";
       go.minimapFrame.style.display = "block";
       // HUD.display(go.hud.context);
-
+      if(parseInt(HUD.xp.textContent) >= 10 ) {
+        HUD.xp.parentNode.style.backgroundColor = "rgb(23,45,111)";
+      }else {
+        HUD.xp.parentNode.style.backgroundColor = "";
+      }
     },
     close: function() {
+      go.mode = "explore";
       go.miniMap.canvas.style.display = "none";
       go.hud.canvas.style.display = "none";
       go.hudHTML.style.display = "none";
@@ -107,3 +115,13 @@ var HUD = {
     }, false);
   }
 }
+
+HUD.xp.parentNode.addEventListener('mousedown', function() {
+  if(player.xp >= 10) {
+    player.currentHP += 1;
+    player.maxHP += 1;
+    player.xp -= 10;
+    HUD.xp.textContent = player.xp;
+    HUD.hp.textContent = player.currentHP;
+  }
+});

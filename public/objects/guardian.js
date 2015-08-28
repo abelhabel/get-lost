@@ -22,7 +22,10 @@ function Guardian(x, y, planet) {
   Guardian.prototype.shoot = function() {
     this.shootTimer += 1;
     if(this.shootTimer > this.reloadSpeed) {
-      playSoundEffect(this, 'Shoot');
+      if(Math.abs(this.posx - player.posx) < 1000 && Math.abs(this.posy - player.posy) < 1000) {
+        playSoundEffect(this, 'Shoot');
+      }
+      
       this.shootTimer = 0;
       for(var i = 0; i < this.points; i += 1) {
         var x = this.r * Math.cos(i * this.radian + this.rotation);

@@ -12,7 +12,7 @@ var Helpers = {
     if(to && from) {
       var keys = Object.keys(from);
       keys.forEach(function(key) {
-        to[key] = from[key];
+          to[key] = from[key];
       });
       return to;
     }
@@ -189,6 +189,14 @@ var Helpers = {
         go.idTable[who.id][key] = value;
       }
     }
+  },
+  findWord: function(list, word) {
+    for(var i = 0; i < list.length; i += 1) {
+      if(list[i] == word) {
+        return true;
+      }
+    }
+    return false
   }
   
 }

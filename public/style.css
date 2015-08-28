@@ -142,6 +142,17 @@ ul li {
   max-height: 375px;
   transform: translateY(50%);
 }
+.half-width {
+  width: 48%;
+}
+#upgradeFrame {
+  width: 400px;
+  margin: auto;
+  height: 50%;
+  transform: translateY(50%);
+  border: 2px solid rgb(0,255,0);
+}
+
 .popup {
   color: white;
   position: fixed;

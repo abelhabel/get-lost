@@ -41,7 +41,6 @@ function createGameObject(obj) {
     newObj.ox = go.camera.xmin;
     newObj.oy = go.camera.ymin;
   }
-
   return newObj;
 }
 
@@ -177,7 +176,7 @@ if(!go.testing) {
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
 
-        Helpers.copyKeys(go.idTable[obj.id], msg);
+        Helpers.copyKeys(go.idTable[obj.id], obj);
         return;
       }
       // if(shape.cotr == "Player") return;

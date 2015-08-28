@@ -3,6 +3,15 @@ var FollowPatterns = {
     shape.posx = shape.follow.posx + shape.followDistanceX * Math.cos(angle);
     shape.posy = shape.follow.posy + shape.followDistanceY * Math.sin(angle);
   },
+  spiral: function(shape, angle) {
+    shape.followDistanceX += 1;
+    shape.followDistanceY += 1;
+    shape.posx = shape.follow.posx + shape.followDistanceX * Math.cos(angle);
+    shape.posy = shape.follow.posy + shape.followDistanceY * Math.sin(angle);
+  },
+  circleX: function(shape, angle) {
+    shape.posx = shape.follow.posx + shape.followDistanceX * Math.cos(angle);
+  },
   normal: function(shape, angle) {
     shape.posx = shape.follow.posx + shape.followDistanceX;
     shape.posy = shape.follow.posy + shape.followDistanceY;

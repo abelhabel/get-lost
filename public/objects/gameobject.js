@@ -42,7 +42,7 @@ function GameObject() {
   this.engineEfficiency = 1;
   this.miningSpeed = 0.1;
   this.miningAmount = 10; //units of mineral per mining
-
+  this.globalTeam = "enemy";
   this.miningCounter = 0;
   this.miningTimer = null;
   this.minerals = Minerals.mineralsTemplate;

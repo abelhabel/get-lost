@@ -11,7 +11,7 @@ function dbAuth(msg) {
     console.log('could not connect to firebase');
   }
 }
-
+var adventureShift = 1;
 var express = require('express');
 var app = express();
 var http = require('http');
@@ -155,6 +155,19 @@ function createBlackHole(obj, socket) {
   Worlds[obj.worldId].workspace.addToGrid(blackHole);
   emitNearBy(obj, socket, 'add object', blackHole);
 }
+
+function createHunter(storedObject, socket) {
+  var keys = Object.keys(MovementPatterns);
+  var hunter = new Hunter(storedObject.posx, storedObject.posy - 300, 25, MovementPatterns[ keys[Math.floor(Math.random() * keys.length) ]]);
+  hunter.id = hunter.team = Helpers.getNextId();
+  hunter.worldId = storedObject.worldId;
+  Worlds[storedObject.worldId].idTable[hunter.id] = hunter;
+  Worlds[storedObject.worldId].workspace.addToGrid(hunter);
+  socket.emit('add object', hunter);
+  broadcastNearBy(storedObject, socket, 'add object', hunter);
+}
+
+
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });
@@ -422,25 +435,13 @@ io.on('connection', function(socket) {
         io.emit('mining', storedObject);
         if(!storedObject.hunterReleased) {
           storedObject.hunterReleased = true;
-          var keys = Object.keys(MovementPatterns);
-          var hunter = new Hunter(storedObject.posx, storedObject.posy - 300, 25, MovementPatterns[ keys[Math.floor(Math.random() * keys.length) ]]);
-          hunter.id = hunter.team = Helpers.getNextId();
-          hunter.worldId = msg.worldId;
-          Worlds[msg.worldId].idTable[hunter.id] = hunter;
-          Worlds[msg.worldId].workspace.addToGrid(hunter);
-          socket.emit('add object', hunter);
-          broadcastNearBy(storedObject, socket, 'add object', hunter);
+          createHunter(storedObject, socket);
         }
 
-        go.adventure = (go.adventure || 0) + 1
         if(!storedObject.hasAdventure) {
           storedObject.hasAdventure = true;
-          if(go.adventure == 1) {
-            var fileName = "corpse.json";
-          }else {
-            var fileName = "crashed-space-ship.json";
-            go.adventure = 0;
-          }
+          adventureShift *= (-1);
+          var fileName = adventureShift > 0 ? "corpse.json" : "crashed-space-ship.json";
           fs.readFile(__dirname + "/data/adventures/" + fileName, function(err, data) {
             socket.emit('adventure', data.toString());
           });

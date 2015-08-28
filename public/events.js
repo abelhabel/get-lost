@@ -39,6 +39,9 @@ var input = {
   console: 67
 };
 function keyUp(e) {
+  if(e.keyCode == input.tab) {
+    HUD.miniMap.close();
+  }
   if(go.mode != 'explore') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
 
@@ -55,15 +58,18 @@ function keyUp(e) {
       player.moveDown = false;
   }
 
-  if(e.keyCode == input.tab) {
-    HUD.miniMap.close();
-  }
+  
 }
 function keyDown(e) {
   if(e.keyCode == input.console && e.ctrlKey) {
     openConsole();
   }
-
+  if(e.keyCode == input.tab) {
+    if(!HUD.miniMap.visible) {
+      HUD.miniMap.open();
+      HUD.display(go.uiScreen.context);
+    }
+  }
   if(go.mode != 'explore') return;
   if(e.keyCode == input.left || e.keyCode == input.right || e.keyCode == input.up || e.keyCode == input.down) {
     if(!player.drainFuel()) 
@@ -91,12 +97,7 @@ function keyDown(e) {
     socket.emit('sync position', player);
   }
 
-  if(e.keyCode == input.tab) {
-    if(!HUD.miniMap.visible) {
-      HUD.miniMap.open();
-      HUD.display(go.uiScreen.context);
-    }
-  }
+  
 
   if(e.keyCode == input.esc) {
     if(go.mainMenu.style.display == "none"){

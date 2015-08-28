@@ -11,7 +11,7 @@ function Player(x, y, r) {
   this.currentHP = this.maxHP = 10;
   this.xp = 0;
   this.team = this.id;
-
+  this.globalTeam = "player";
   this.inventory = [];
   this.inAdventure = false;
   this.reloading = false;
@@ -45,8 +45,19 @@ function Player(x, y, r) {
                               this.projectileSpeed * y / 10,
                               Minerals.minerals[this.engineFuel].color);
     proj.team = this.team;
+    proj.globalTeam = this.globalTeam;
     proj.damage = Minerals.minerals[this.engineFuel].projectileDamage;
     go.workspace.addToGrid(proj);
+
+    if(player.projectileFollowPattern) {
+      proj.follow = this;
+      proj.followPattern = player.projectileFollowPattern;
+      proj.followDistanceX = proj.followDistanceY = 200;
+      proj.followRotation = 0;
+      proj.vx = 0;
+      // proj.vy = 1;
+      proj.followRotationSpeed = 0.2;
+    }
     setTimeout(function() {
       go.workspace.removeFromGrid(proj);
     }, 3000);

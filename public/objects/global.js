@@ -29,7 +29,7 @@ go.console = document.getElementById('console');
 go.console.addEventListener('keyup', function(e){
   if(e.keyCode == 13 && !e.shiftKey) {
     evaluateConsole(this.textContent.trim());
-    this.innerHTML = "";
+    // this.innerHTML = "";
   }
 })
 go.renderPosX = 0;
