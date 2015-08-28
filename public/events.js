@@ -40,6 +40,8 @@ var input = {
 };
 function keyUp(e) {
   if(player) {
+    var rot = Math.atan2(player.vy, player.vx) + Math.PI/2
+    go.compass.style.transform = "rotate(" + rot + "rad)";
     go.speedDiv.textContent = "Speed: " + Math.round(Math.sqrt(player.vx * player.vx + player.vy * player.vy));
   }
   if(e.keyCode == input.tab) {
@@ -65,6 +67,8 @@ function keyUp(e) {
 }
 function keyDown(e) {
   if(player) {
+    var rot = Math.atan2(player.vy, player.vx) + Math.PI/2
+    go.compass.style.transform = "rotate(" + rot + "rad)";
     go.speedDiv.textContent = "Speed: " + Math.round(Math.sqrt(player.vx * player.vx + player.vy * player.vy));
   }
   if(e.keyCode == input.console && e.ctrlKey) {
@@ -169,7 +173,6 @@ function playerRotate(e) {
   player.rotation = Math.atan2(x, y) - Math.PI/2;
   var divRotation = Math.PI * 2.5 - player.rotation;
   go.playerDiv.style.transform = "rotate(" + divRotation + "rad)";
-  go.compass.style.transform = "rotate(" + divRotation + "rad)";
   // go.playerDiv.style.left = player.xmin - go.camera.xmin + "px";
   // go.playerDiv.style.top = player.ymin - go.camera.ymin + "px";
   socket.emit('player rotation', player);
