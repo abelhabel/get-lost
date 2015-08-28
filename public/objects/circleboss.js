@@ -6,7 +6,7 @@ function CircleBoss(x, y, r, name) {
   this.posx = x;
   this.posy = y;
   this.vx = this.vy = 1;
-
+  this.team = this.id;
   this.r = r;
   this.width = this.height = r * 2;
   this.forceMove = true;

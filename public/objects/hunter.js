@@ -22,6 +22,7 @@ function Hunter(x, y, r, movementPattern) {
   this.currentHP = this.maxHP = this.points;
   this.dead = false;
   this.updateGrid = true;
+  this.xp = 15;
 }
 
 if(typeof module != 'undefined') module.exports = Hunter;

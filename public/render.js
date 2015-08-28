@@ -18,6 +18,9 @@ function draw() {
     }else
     if(shape instanceof Circle) {
       render.Circle(shape, context);
+    }else
+    if(shape instanceof Decoration) {
+      render.Decoration(shape, context);
     }
   }
 
@@ -56,6 +59,11 @@ function draw() {
         ct.fill();
 
       }
+    },
+
+    Decoration: function(shape, ct) {
+      var img = go.sprites[shape.mineral.name].image;
+      ct.drawImage(img, shape.posx - ox - shape.r, shape.posy - oy - shape.r, shape.width, shape.height);
     },
 
     Planet: function renderPlanet(shape, ct) {
@@ -112,6 +120,7 @@ function draw() {
   
   // go.body.style.backgroundPosition = go.renderPosX + "px " + go.renderPosY + "px, center" ;  
   ct.clearRect(0, 0, go.screen.width, go.screen.height);
+  go.decorations.context.clearRect(0, 0, go.decorations.width, go.decorations.height);
   ct.fillStyle = go.workspace.backgroundColor;
   // ct.fillRect(0, 0, go.screen.width, go.screen.height);
   // ct.drawImage(go.bgScreen.img, 0, 0, go.bgScreen.width, go.bgScreen.height);
@@ -122,13 +131,12 @@ function draw() {
   var oy = go.camera.ymin;
 
   shapes.forEach(function(shape) {
-    renderShape(shape, go.screen.context);
-
-    if(shape.followers) {
-      shape.followers.forEach(function(shape) {
-        renderShape(shape, go.screen.context);
-      })
+    if(shape.cotr == "Decoration") {
+      renderShape(shape, go.decorations.context);
+    }else {
+      renderShape(shape, go.screen.context);
     }
+    
 
   });
 

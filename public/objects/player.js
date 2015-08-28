@@ -19,6 +19,7 @@ function Player(x, y, r) {
   this.stroke = false;
   this.fill = true;
   this.fillStyle = Helpers.getRGB();
+  this.engineEfficiency = 1;
   Player.prototype.reload = function() {
     var thisPlayer = this;
     setTimeout(function() {
@@ -75,7 +76,7 @@ function Player(x, y, r) {
 
   Player.prototype.drainFuel = function() {
     if(this.minerals[this.engineFuel] > 0) {
-      this.minerals[this.engineFuel] -= this.engineDrain * Minerals.minerals[this.engineFuel].engineEfficiency;
+      this.minerals[this.engineFuel] -= this.engineDrain * Minerals.minerals[this.engineFuel].engineEfficiency * this.engineEfficiency;
       return true;
     }else {
       return false;
@@ -149,6 +150,16 @@ function Player(x, y, r) {
       this.posy = workspace.height - this.height;
     }
 
+    if(this.follow) {
+      this.rotation += this.rotationSpeed;
+      this.followRotation += this.followRotationSpeed;
+      if(this.followPattern) {
+        FollowPatterns[this.followPattern](this, this.followRotation);
+      }else {
+        this.posx = this.follow.posx;
+        this.posy = this.follow.posy;
+      }
+    }
 
 
     this.setBoundingBox();

@@ -4,6 +4,7 @@ go.mode = 'menu';
 go.gridSize = 2000;
 go.workspace = new Workspace(1e5, 1e5, go.gridSize, go.gridSize),
 go.bgScreen = new Screen(window.innerWidth, window.innerHeight, document.getElementById('background'));
+go.decorations = new Screen(window.innerWidth,window.innerHeight, document.getElementById('decorations'));
 go.ui = new UI(),
 go.screen = new Screen(window.innerWidth, window.innerHeight, document.getElementById('planets'));
 go.uiScreen = new Screen(window.innerWidth, window.innerHeight, document.getElementById('ui'));
@@ -23,7 +24,8 @@ go.adventureFrame = document.getElementById('adventureFrame');
 go.adventureScene = document.getElementById('sceneDescription');
 go.adventureFeedback = document.getElementById('feedback');
 go.adventureInput = document.getElementById('input');
-
+go.compass = document.getElementById('compass');
+go.speedDiv = document.getElementById('currentSpeed');
 go.body = document.getElementsByTagName('body')[0];
 go.console = document.getElementById('console');
 go.console.addEventListener('keyup', function(e){
@@ -70,7 +72,7 @@ go.sprites = {
   "Palmonophen": new Sprite('planets/planet15.png'),
   "Alpadium": new Sprite('planets/planet12.png'),
   "spikedShip": new Sprite('spikedship.png'),
-  "purpleSpace": new Sprite('stars-background-purple-repeat.png')
+  "purpleSpace": new Sprite('stars-background-purple-repeat.png'),
 };
 
 go.muteSound.addEventListener('mousedown', function(){

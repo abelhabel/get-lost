@@ -405,7 +405,7 @@ io.on('connection', function(socket) {
         dbClearPlayer(socket.credentials.username);
         removePlayer(player);
       }else {
-        if(defender.cotr == "CircleBoss") {
+        if(defender.cotr == "CircleBoss" == defender.cotr == "PolygonBoss") {
           createBlackHole(defender, socket);
         }
         attacker.xp += defender.xp || defender.maxHP || 1;

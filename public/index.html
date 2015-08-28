@@ -8,6 +8,7 @@
 </head>
 <body>
 <canvas id="background"></canvas>
+<canvas id="decorations"></canvas>
 <canvas id="planets"></canvas>
 <canvas id="players"></canvas>
 <canvas id="ui"></canvas>
@@ -30,6 +31,11 @@
   <div id="logout" class="stat-frame" style="display: none">Log out</div>
   <div id="muteSound" class="stat-frame">Mute sound</div>
 </div>
+
+<div id="compass"></div>
+<div id="currentSpeed"></div>
+
+
 <div id="instructionsMenu" style="display: none;">
   <div class="stat-frame">
       <ul> <span class="ul-title">Movement</span>
@@ -131,6 +137,7 @@
 <script src="/public/objects/sprite.js"></script>
 <script src="/public/objects/sound.js"></script>
 <script src="/public/objects/background.js"></script>
+<script src="/public/objects/decoration.js"></script>
 <script src="/public/objects/player.js"></script>
 <script src="/public/ui/ui.js"></script>
 <script src="/public/ui/mousearea.js"></script>

@@ -41,6 +41,14 @@ function createGameObject(obj) {
     newObj.ox = go.camera.xmin;
     newObj.oy = go.camera.ymin;
   }
+
+  if(obj.cotr == "Decoration") {
+    newObj = Helpers.copyKeys(new Decoration(), obj);
+  }
+
+  if(obj.cotr == "Star") {
+    newObj = Helpers.copyKeys(new Star(), obj);
+  }
   return newObj;
 }
 
@@ -175,9 +183,10 @@ if(!go.testing) {
   socket.on('world section', function(msg) {
     msg.forEach(function(obj) {
       if(go.idTable.hasOwnProperty(obj.id)) {
-
-        Helpers.copyKeys(go.idTable[obj.id], obj);
-        return;
+        if(msg.cotr != "Decoration") {
+          Helpers.copyKeys(go.idTable[obj.id], obj);
+          return;
+        }
       }
       // if(shape.cotr == "Player") return;
       var shape = createGameObject(obj);

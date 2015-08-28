@@ -15,13 +15,37 @@ canvas {
   position: absolute;
   z-index: 0;
 }
-
+#decorations {
+  -webkit-filter: blur(10px);
+  -mozilla-filter: blur(10px);
+  filter: blur(10px);
+}
 span {
   color: white;
   text-transform: uppercase;
 }
 ul li {
   color: white;
+}
+#compass {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  width: 32px;
+  height: 64px;
+  background-image: url('https://www.prepressed.se/sprites/ui/compass.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+#currentSpeed {
+  position: fixed;
+  right: 18px;
+  bottom: 0px;
+  width: 84px;
+  height: 24px;
+  color: rgb(0,255,0);
+  text-align: center;
 }
 #loginMenu {
   width: 400px;

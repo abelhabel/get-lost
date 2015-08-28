@@ -44,7 +44,7 @@ var HUD = {
       if(!tile) return;
       tile.forEach(function(shape) {
         
-        if(shape instanceof Projectile || shape instanceof Player || shape instanceof Camera) {
+        if(shape instanceof Projectile || shape instanceof Player || shape instanceof Camera || shape instanceof Decoration) {
           return;
         }
         
