@@ -2,6 +2,7 @@ This is a my final project for the Lighthouse Labs web development bootcamp.
 I managed to win the people's choice award for best project.
 
 Features:
+
 1. Exploration, by moving your space ship through space.
 2. Log in/Log out, to persist player position when player leaves game
 3. Resources, are used when accelerating the space ship and when shooting.
